@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Golang on Your Blog Title</title>
+    <link>http://localhost:1313/tags/golang/</link>
+    <description>Recent content in Golang on Your Blog Title</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <managingEditor>your@email.com (Aos Dabbagh)</managingEditor>
+    <webMaster>your@email.com (Aos Dabbagh)</webMaster>
+    <copyright>(c) 2008 - 2014</copyright>
+    <lastBuildDate>Wed, 02 Apr 2014 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Getting Started with Hugo</title>
+      <link>http://localhost:1313/posts/hugoisforlovers/</link>
+      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate><author>your@email.com (Aos Dabbagh)</author>
+      <guid>http://localhost:1313/posts/hugoisforlovers/</guid>
+      <description>Step 1. Install Hugo Goto hugo releases and download the appropriate version for your os and architecture.&#xA;Save it somewhere specific as we will be using it in the next step.&#xA;More complete instructions are available at installing hugo&#xA;Step 2. Build the Docs Hugo has its own example site which happens to also be the documentation site you are reading right now.&#xA;Follow the following steps:&#xA;Clone the hugo repository Go into the repo Run hugo in server mode and build the docs Open your browser to http://localhost:1313 Corresponding pseudo commands:</description>
+    </item>
+  </channel>
+</rss>
