@@ -1,4 +1,4 @@
-baseURL = 'https://anrbn.gitlab.io/'
+baseURL = 'https://anrbn.github.io/'
 title = "Your Blog Title"
 theme = "temple"
 # If not set, it will not appear. Otherwise it will show below your footer links
