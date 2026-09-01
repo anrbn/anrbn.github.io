@@ -4,21 +4,15 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("builds the archive without React", async () => {
+test("builds the CMS-driven archive without React or demo posts", async () => {
   const html = await readFile(new URL("dist/index.html", root), "utf8");
   assert.match(html, /<title>Margin \/ Notes<\/title>/);
-  assert.match(html, /The shape of a good note\./);
-  assert.match(html, /A small HTTP client, built in layers\./);
   assert.match(html, />Blogs</);
   assert.match(html, />Thoughts</);
+  assert.match(html, /Nothing published here yet\./);
+  assert.doesNotMatch(html, /The shape of a good note\./);
+  assert.doesNotMatch(html, /A small HTTP client, built in layers\./);
   assert.doesNotMatch(html, /react-dom|__next|vinext/i);
-});
-
-test("preserves the proof-of-concept article URLs", async () => {
-  await Promise.all([
-    access(new URL("dist/concepts/01-quiet-folio/index.html", root)),
-    access(new URL("dist/concepts/01-quiet-folio/coding-in-layers.html", root)),
-  ]);
 });
 
 test("emits publishing and discovery files", async () => {
@@ -32,4 +26,5 @@ test("emits publishing and discovery files", async () => {
   assert.match(cms, /path: src\/content\/posts/);
   await access(new URL("dist/sitemap-index.xml", root));
   await assert.rejects(access(new URL("dist/posts/new-post-template/index.html", root)));
+  await assert.rejects(access(new URL("dist/concepts/01-quiet-folio/index.html", root)));
 });

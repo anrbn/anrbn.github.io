@@ -1,8 +1,15 @@
 ---
 import { getCollection } from "astro:content";
 import SiteIdentity from "../components/SiteIdentity.astro";
-import { legacyPosts, type ArchivePost } from "../data/archive";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+interface ArchivePost {
+  title: string;
+  date: string;
+  dateTime: string;
+  href: string;
+  kind: "blog" | "thought";
+}
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
@@ -18,7 +25,7 @@ const cmsPosts: ArchivePost[] = (await getCollection("posts", ({ data }) => !dat
   kind: post.data.kind,
 }));
 
-const allPosts = [...cmsPosts, ...legacyPosts].sort(
+const allPosts = cmsPosts.sort(
   (a, b) => new Date(b.dateTime).valueOf() - new Date(a.dateTime).valueOf(),
 );
 const groups = {
