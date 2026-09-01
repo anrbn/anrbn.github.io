@@ -7,7 +7,6 @@ tags:
   - example
 draft: true
 ---
-
 Start writing here. Delete these instructions when the post is ready.
 
 ## A section heading
@@ -19,7 +18,7 @@ Inline equations use dollar signs: $e^{i\pi} + 1 = 0$.
 Display equations use two dollar signs:
 
 $$
-\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
+\int_0^\infty e^{-x^2}dx = \frac{\sqrt{\pi}}{2}
 $$
 
 Fenced code blocks receive syntax highlighting automatically:
@@ -29,3 +28,4 @@ export function greet(name: string) {
   return `Hello, ${name}`;
 }
 ```
+
