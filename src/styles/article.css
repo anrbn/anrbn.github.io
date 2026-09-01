@@ -22,6 +22,7 @@ body.drawer-open { overflow: hidden; }
 .contents-group a:focus-visible { color: var(--accent); outline: none; transform: scale(1.04); }
 .contents-group li.active > a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .35em; }
 .reader { position: relative; z-index: 0; min-height: 100vh; margin-left: var(--rail); padding: 2.75rem clamp(3rem, 5vw, 6.5rem) 8rem; }
+.reader .flower-decoration { opacity: .72; }
 .toolbar-button { min-width: 2rem; height: 2rem; display: grid; place-items: center; padding: 0 .45rem; background: transparent; border: 1px solid transparent; cursor: pointer; font-family: var(--mono); font-size: .7rem; }
 .toolbar-button:hover,
 .toolbar-button:focus-visible { border-color: var(--line); outline: none; }

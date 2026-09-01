@@ -28,10 +28,10 @@ button { color: inherit; font: inherit; }
 
 .flower-decoration {
   --flower-size: clamp(18rem, 25vw, 30rem);
-  --flower-right: -.5rem;
+  --flower-right: -.625rem;
   position: fixed;
   z-index: 10;
-  top: -1rem;
+  top: .25rem;
   right: calc(var(--flower-right) - (100vw - 100%));
   width: var(--flower-size);
   height: auto;
@@ -103,8 +103,8 @@ button { color: inherit; font: inherit; }
 @media (max-width: 600px) {
   .flower-decoration {
     --flower-size: 12rem;
-    --flower-right: -4.5rem;
-    top: -.5rem;
+    --flower-right: -4.625rem;
+    top: .75rem;
     opacity: .72;
   }
   .archive-home { padding: 9rem 1rem 3rem; }
