@@ -1,5 +1,13 @@
+---
+interface Props {
+  variant?: "home" | "article";
+}
+
+const { variant = "home" } = Astro.props;
+---
+
 <img
-  class="flower-decoration"
+  class:list={["flower-decoration", variant === "article" && "article-flower"]}
   src="/new.png"
   alt=""
   aria-hidden="true"

@@ -34,7 +34,7 @@ test("emits publishing files and keeps the article rail focused", async () => {
   assert.doesNotMatch(articleLayout, /<h2>Archive<\/h2>/);
   assert.doesNotMatch(articleLayout, />On this page</);
   assert.doesNotMatch(articleLayout, /href="#article-title"/);
-  assert.match(articleLayout, /<FlowerDecoration \/>/);
+  assert.match(articleLayout, /<FlowerDecoration variant="article" \/>/);
   assert.match(articleLayout, /heading\.depth >= 1 && heading\.depth <= 3/);
   assert.match(tocBranch, /<Astro\.self node=\{child\}/);
   assert.match(articleStyles, /\.article-body h1/);

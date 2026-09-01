@@ -43,6 +43,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
 ---
 
 <BaseLayout title={`${title} — Margin / Notes`} description={description} image={image} type="article">
+  <FlowerDecoration variant="article" />
   <a class="skip" href="#article-body">Skip to article</a>
 
   <aside class="contents" id="contents" aria-label="Article contents">
@@ -57,7 +58,6 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   <button class="scrim" id="scrim" type="button" aria-label="Close contents"></button>
 
   <main class="reader" id="article" tabindex="-1">
-    <FlowerDecoration />
     <button class="toolbar-button menu-button" id="menu" type="button" aria-controls="contents" aria-expanded="false" aria-label="Open contents">&#9776;</button>
 
     <article class="paper">
