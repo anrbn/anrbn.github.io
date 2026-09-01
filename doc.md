@@ -84,10 +84,12 @@ is the current remote `main`, not whatever a local branch happens to contain.
 ├── package.json                    # Node version, scripts, dependencies
 ├── public/
 │   ├── favicon.svg
+│   ├── flower.png                  # Optimized shared decorative branch
 │   ├── robots.txt
 │   └── images/posts/               # CMS uploads appear here when present
 ├── src/
 │   ├── components/
+│   │   ├── FlowerDecoration.astro  # Shared top-right decorative artwork
 │   │   ├── SiteIdentity.astro      # Site name and social links
 │   │   └── TocBranch.astro         # Recursive nested article TOC branch
 │   ├── content/
@@ -124,6 +126,7 @@ from previous prototypes are not part of production.
 | `/robots.txt` | `public/robots.txt` | Copied directly |
 | `/sitemap-index.xml` | Astro sitemap integration | Points to generated sitemap files |
 | `/favicon.svg` | `public/favicon.svg` | Copied directly |
+| `/flower.png` | `public/flower.png` | Decorative branch shared by the homepage and article layout |
 
 The RSS link was removed from the visible article sidebar, but the `/rss.xml`
 endpoint still exists and is linked in page metadata.

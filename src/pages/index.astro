@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import FlowerDecoration from "../components/FlowerDecoration.astro";
 import SiteIdentity from "../components/SiteIdentity.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -36,6 +37,7 @@ const groups = {
 
 <BaseLayout>
   <main class="archive-home">
+    <FlowerDecoration />
     <SiteIdentity />
     <div class="archive-wrap">
       <nav class="archive-tabs" aria-label="Post categories">

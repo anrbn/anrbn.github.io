@@ -12,6 +12,8 @@ test("builds the CMS-driven archive without a client framework", async () => {
   assert.match(html, />Thoughts</);
   assert.match(html, /data-list="blog"/);
   assert.match(html, /data-list="thought"/);
+  assert.match(html, /class="flower-decoration"/);
+  assert.match(html, /src="\/flower\.png"/);
   assert.doesNotMatch(html, /react-dom|__next|vinext/i);
 });
 
@@ -32,12 +34,14 @@ test("emits publishing files and keeps the article rail focused", async () => {
   assert.doesNotMatch(articleLayout, /<h2>Archive<\/h2>/);
   assert.doesNotMatch(articleLayout, />On this page</);
   assert.doesNotMatch(articleLayout, /href="#article-title"/);
+  assert.match(articleLayout, /<FlowerDecoration \/>/);
   assert.match(articleLayout, /heading\.depth >= 1 && heading\.depth <= 3/);
   assert.match(tocBranch, /<Astro\.self node=\{child\}/);
   assert.match(articleStyles, /\.article-body h1/);
   assert.match(articleStyles, /\.contents \{[^}]*display: flex;[^}]*overflow: hidden;/);
   assert.match(articleStyles, /\.contents > nav \{[^}]*overflow-y: auto;/);
   assert.match(siteIdentity, />anirban\.cloud<\/a>/);
+  await access(new URL("dist/flower.png", root));
   await access(new URL("dist/sitemap-index.xml", root));
   await assert.rejects(access(new URL("dist/concepts/01-quiet-folio/index.html", root)));
 });

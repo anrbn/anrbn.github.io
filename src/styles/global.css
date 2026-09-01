@@ -15,6 +15,7 @@ html { min-height: 100%; background: var(--canvas); scroll-behavior: smooth; }
 body {
   min-height: 100%;
   margin: 0;
+  overflow-x: clip;
   background: var(--canvas);
   color: var(--ink);
   font-family: var(--serif);
@@ -24,6 +25,20 @@ body {
 a { color: inherit; }
 button { color: inherit; font: inherit; }
 ::selection { background: #d7d8d4; color: var(--ink); }
+
+.flower-decoration {
+  --flower-size: clamp(17rem, 19vw, 23rem);
+  position: absolute;
+  z-index: 10;
+  top: calc(var(--flower-size) * -.57);
+  right: calc(var(--flower-size) * -.12);
+  width: var(--flower-size);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  transform: rotate(239deg);
+  transform-origin: center;
+}
 
 .site-identity { z-index: 21; }
 .home-identity { position: fixed; top: 3.1rem; left: 2.45rem; }
@@ -45,7 +60,7 @@ button { color: inherit; font: inherit; }
 .identity-social a:hover { opacity: 1; }
 .identity-social img { display: block; width: 100%; height: 100%; }
 
-.archive-home { min-height: 100vh; padding: max(5rem, calc(50vh - 7.25rem)) 2rem 4rem; }
+.archive-home { position: relative; min-height: 100vh; padding: max(5rem, calc(50vh - 7.25rem)) 2rem 4rem; }
 .archive-wrap { width: min(100%, 56rem); margin: 0 auto; }
 .archive-tabs {
   display: flex;
@@ -87,6 +102,11 @@ button { color: inherit; font: inherit; }
   .post-list:has(a:hover) a:not(:hover) { opacity: .38; }
 }
 @media (max-width: 600px) {
+  .flower-decoration {
+    --flower-size: 10rem;
+    right: -3.8rem;
+    opacity: .72;
+  }
   .archive-home { padding: 9rem 1rem 3rem; }
   .home-identity { position: absolute; top: 2.5rem; left: 1.75rem; }
   .archive-tabs { padding: 0 .75rem; }
@@ -96,4 +116,7 @@ button { color: inherit; font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }
+}
+@media print {
+  .flower-decoration { display: none; }
 }
