@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A small HTTP client, built in layers — a practical TypeScript essay about keeping network code understandable.">
+  <title>A small HTTP client, built in layers. — Quiet Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --rail: 21.25rem;
+      --canvas: #ffffff;
+      --paper: #ffffff;
+      --ink: #202220;
+      --muted: #8a8c89;
+      --line: #dedfdd;
+      --accent: #090a09;
+      --code: #f5f5f3;
+      --code-head: #efefec;
+      --selection: #d7d8d4;
+      --serif: "Newsreader", Georgia, serif;
+      --mono: "Fragment Mono", "Courier New", monospace;
+      --body-size: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: var(--body-size);
+      line-height: 1.62;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    button { color: inherit; font: inherit; }
+    ::selection { background: var(--selection); color: var(--ink); }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    .skip {
+      position: fixed;
+      z-index: 100;
+      top: .6rem;
+      left: .6rem;
+      padding: .55rem .75rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: .7rem;
+      transform: translateY(-180%);
+    }
+    .skip:focus { transform: none; }
+
+    .contents {
+      position: fixed;
+      z-index: 20;
+      inset: 0 auto 0 0;
+      width: var(--rail);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 3.1rem 2.45rem 7rem;
+      background: color-mix(in srgb, var(--canvas) 96%, var(--paper));
+      border-right: 1px solid var(--line);
+      scrollbar-width: thin;
+      scrollbar-color: var(--muted) transparent;
+    }
+    .brand {
+      display: block;
+      margin-bottom: 0;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.62;
+      letter-spacing: .035em;
+      text-decoration: none;
+      text-transform: none;
+    }
+    .identity {
+      position: fixed;
+      z-index: 21;
+      top: 3.1rem;
+      left: 2.45rem;
+      margin: 0;
+    }
+    .social-links {
+      display: flex;
+      align-items: center;
+      gap: .72rem;
+      margin-top: .75rem;
+      line-height: 1;
+    }
+    .social-links a {
+      display: block;
+      width: 1rem;
+      height: 1rem;
+      opacity: .56;
+      text-decoration: none;
+      transition: opacity .14s ease;
+    }
+    .social-links a:hover { opacity: 1; }
+    .social-links a:focus-visible { outline: 1px solid var(--ink); outline-offset: 4px; }
+    .social-links img { display: block; width: 100%; height: 100%; }
+    .contents > nav { padding-top: 7rem; }
+    .contents-group { margin: 0 0 2rem; }
+    .contents-group h2 {
+      margin: 0 0 .8rem;
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-weight: 400;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+    }
+    .contents-group ol,
+    .contents-group ul { margin: 0; padding-left: .65rem; list-style: none; }
+    .contents-group li {
+      padding: .17rem 0;
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+    .contents-group a {
+      display: inline-block;
+      text-decoration: none;
+      transform-origin: left center;
+      transition: transform .12s ease;
+    }
+    .contents-group a:hover,
+    .contents-group a:focus-visible {
+      color: var(--accent);
+      outline: none;
+      transform: scale(1.04);
+    }
+    .contents-group li.active,
+    .contents-group li.active a {
+      color: var(--accent);
+      font-weight: 400;
+    }
+    .contents-group li.active a {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-skip-ink: auto;
+      text-underline-offset: .35em;
+    }
+
+    .reader {
+      min-height: 100vh;
+      margin-left: var(--rail);
+      padding: 2.75rem clamp(3rem, 5vw, 6.5rem) 8rem;
+    }
+    .toolbar-button {
+      min-width: 2rem;
+      height: 2rem;
+      display: grid;
+      place-items: center;
+      padding: 0 .45rem;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: .7rem;
+    }
+    .toolbar-button:hover,
+    .toolbar-button:focus-visible { border-color: var(--line); outline: none; }
+    .menu-button { display: none; }
+
+    .paper {
+      width: min(100%, 70rem);
+      min-height: 110rem;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 7px rgba(20, 20, 18, .035);
+    }
+    .article-head {
+      min-height: 24rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+    }
+    .meta,
+    .section-label,
+    .code-filename,
+    .copy-button,
+    .micro {
+      font-family: var(--mono);
+      font-size: .63rem;
+      line-height: 1.5;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+    }
+    .meta { margin: 0 0 2rem; }
+    h1 {
+      max-width: 45rem;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2.8rem, 5vw, 4.3rem);
+      line-height: 1;
+      font-weight: 400;
+      letter-spacing: -.045em;
+    }
+    .subtitle {
+      max-width: 43rem;
+      margin: 1rem auto 0;
+      color: #4b4944;
+      font-size: 1.06rem;
+      line-height: 1.45;
+    }
+    .ornament {
+      margin-top: 2.3rem;
+      font-family: var(--mono);
+      font-size: .7rem;
+      letter-spacing: -.12em;
+    }
+
+    .article-body {
+      width: min(100% - 3rem, 42rem);
+      margin: 0 auto;
+      padding: 1.8rem 0 10rem;
+    }
+    .article-body > p { margin: 0 0 1.45rem; }
+    .article-body .lede { font-size: 1.18rem; line-height: 1.65; }
+    .article-body h2 {
+      margin: 4.4rem 0 1.2rem;
+      font-size: 2.35rem;
+      line-height: 1.1;
+      font-weight: 400;
+      letter-spacing: -.035em;
+    }
+    .article-body h3 {
+      margin: 2.8rem 0 1rem;
+      font-size: 1.5rem;
+      line-height: 1.2;
+      font-weight: 500;
+      letter-spacing: -.02em;
+    }
+    .article-body :not(pre) > code {
+      padding: .08em .32em .12em;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: var(--code);
+      font-family: var(--mono);
+      font-size: .78em;
+      white-space: nowrap;
+    }
+    .article-body ul { margin: 0 0 1.5rem; padding-left: 1.25rem; }
+    .article-body li { margin-bottom: .45rem; padding-left: .2rem; }
+    .margin-quote {
+      margin: 3rem -6rem 3rem 0;
+      padding: 1rem 0 1rem 1.2rem;
+      border-left: 2px solid var(--accent);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .73rem;
+      line-height: 1.65;
+    }
+
+    .code-frame {
+      --syntax-comment: #777b73;
+      --syntax-keyword: #262825;
+      --syntax-type: #545753;
+      --syntax-string: #676964;
+      --syntax-function: #393b38;
+      --syntax-number: #5b5d59;
+      width: auto;
+      margin: 2.4rem -4.3rem 2.7rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: var(--code);
+      box-shadow: 0 1px 2px rgba(25, 26, 24, .025);
+    }
+    .code-frame[data-language="typescript"] {
+      --syntax-keyword: #773f72;
+      --syntax-type: #286b67;
+      --syntax-string: #8a522f;
+      --syntax-function: #2f5d86;
+      --syntax-number: #725f22;
+    }
+    .code-head {
+      min-height: 2.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .5rem .65rem .5rem 1rem;
+      background: var(--code-head);
+      border-bottom: 1px solid var(--line);
+    }
+    .code-filename {
+      overflow: hidden;
+      color: #555753;
+      text-overflow: ellipsis;
+      text-transform: none;
+      white-space: nowrap;
+    }
+    .copy-button {
+      flex: 0 0 auto;
+      min-width: 4.25rem;
+      min-height: 1.65rem;
+      padding: .25rem .55rem;
+      border: 1px solid #cfd0cd;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: .58rem;
+    }
+    .copy-button:hover,
+    .copy-button:focus-visible { border-color: var(--ink); outline: none; }
+    .copy-button[data-state="copied"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .copy-button:disabled { cursor: wait; opacity: .68; }
+    .code-frame pre {
+      max-width: 100%;
+      margin: 0;
+      overflow-x: auto;
+      padding: 1.35rem 1.45rem 1.5rem;
+      color: #292b28;
+      font-family: var(--mono);
+      font-size: .75rem;
+      line-height: 1.68;
+      tab-size: 2;
+      white-space: pre;
+      scrollbar-width: thin;
+      scrollbar-color: #b9bab7 transparent;
+    }
+    .code-frame pre:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; }
+    .code-frame code { font: inherit; }
+    .tok-comment { color: var(--syntax-comment); font-style: italic; }
+    .tok-keyword { color: var(--syntax-keyword); font-weight: 700; }
+    .tok-type { color: var(--syntax-type); }
+    .tok-string { color: var(--syntax-string); }
+    .tok-fn { color: var(--syntax-function); }
+    .tok-number { color: var(--syntax-number); }
+    .copy-status {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .scrim { display: none; }
+
+    @media (max-width: 1250px) {
+      :root { --rail: 18rem; }
+      .reader { padding-inline: 3rem; }
+      .contents { padding-inline: 2rem; }
+      .margin-quote { margin-right: 0; }
+      .code-frame { margin-inline: -2rem; }
+    }
+    @media (max-width: 900px) {
+      :root { --rail: min(20rem, 88vw); }
+      .contents {
+        transform: translateX(-101%);
+        transition: transform .22s ease;
+        box-shadow: 10px 0 35px rgba(0, 0, 0, .12);
+      }
+      .contents.open { transform: translateX(0); }
+      .identity { position: static; margin-bottom: 2.6rem; }
+      .contents > nav { padding-top: 0; }
+      .reader { margin-left: 0; padding: 1.25rem 2rem 5rem; }
+      .menu-button {
+        position: fixed;
+        z-index: 18;
+        top: 1rem;
+        left: 1rem;
+        display: grid;
+        background: var(--paper);
+        border-color: var(--line);
+      }
+      .scrim {
+        position: fixed;
+        z-index: 19;
+        inset: 0;
+        background: rgba(0, 0, 0, .22);
+      }
+      .scrim.visible { display: block; }
+    }
+    @media (max-width: 650px) {
+      .reader { padding-inline: .75rem; }
+      .paper { min-height: 100rem; }
+      .article-head { min-height: 24rem; padding: 4rem 1.25rem 3rem; }
+      h1 { font-size: 2.8rem; }
+      .subtitle { font-size: .95rem; }
+      .article-body { width: min(100% - 2rem, 42rem); }
+      .article-body h2 { font-size: 2rem; }
+      .code-frame { margin-inline: 0; }
+      .code-frame pre { padding-inline: 1rem; font-size: .7rem; }
+    }
+    @media (max-width: 390px) {
+      .toolbar-button { font-size: .6rem; }
+      .code-head { padding-left: .75rem; }
+      .code-filename { max-width: 11rem; }
+    }
+    @media print {
+      .contents,
+      .menu-button,
+      .copy-button { display: none !important; }
+      .reader { margin: 0; padding: 0; }
+      .paper { border: 0; box-shadow: none; }
+      .code-frame { break-inside: avoid; margin-inline: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *,
+      *::before,
+      *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip" href="#article">Skip to article</a>
+
+  <aside class="contents" id="contents" aria-label="Book contents">
+    <div class="identity">
+      <a class="brand" href="/">anirban.com</a>
+      <nav class="social-links" aria-label="Social links">
+        <a href="https://github.com/" target="_blank" rel="noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/github.svg" alt="" width="16" height="16"></a>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/linkedin.svg" alt="" width="16" height="16"></a>
+        <a href="https://x.com/" target="_blank" rel="noreferrer" aria-label="X"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/x.svg" alt="" width="16" height="16"></a>
+      </nav>
+    </div>
+    <nav aria-label="Coding article contents">
+      <section class="contents-group">
+        <h2>1. The seam</h2>
+        <ul>
+          <li class="active"><a href="#article-title" aria-current="page">A small HTTP client, built in layers.</a></li>
+          <li><a href="#start-with-the-seam">Start with the seam.</a></li>
+          <li><a href="#types-as-contract">Types as a contract.</a></li>
+        </ul>
+      </section>
+
+      <section class="contents-group">
+        <h2>2. The transport</h2>
+        <ul>
+          <li><a href="#one-fetch-boundary">One boundary for fetch.</a></li>
+          <li><a href="#errors-are-data">Errors are data.</a></li>
+          <li><a href="#keep-call-sites-quiet">Keep call sites quiet.</a></li>
+        </ul>
+      </section>
+
+      <section class="contents-group">
+        <h2>3. Confidence</h2>
+        <ul>
+          <li><a href="#test-the-seam">Test the seam.</a></li>
+          <li><a href="#the-next-layer">The next layer.</a></li>
+        </ul>
+      </section>
+    </nav>
+  </aside>
+
+  <button class="scrim" id="scrim" type="button" aria-label="Close contents"></button>
+
+  <main class="reader" id="article" tabindex="-1">
+    <button class="toolbar-button menu-button" id="menu" type="button" aria-controls="contents" aria-expanded="false" aria-label="Open contents">&#9776;</button>
+
+    <article class="paper">
+      <header class="article-head">
+        <p class="meta"><time datetime="2026-07-28">28 July 2026</time></p>
+        <h1 id="article-title">A small HTTP client, built in layers.</h1>
+        <p class="subtitle">A modest TypeScript boundary for requests, errors, and the code that should not have to think about either.</p>
+        <span class="ornament" aria-hidden="true">&#9476;&#9476;&#9476;&#9476;</span>
+      </header>
+
+      <div class="article-body">
+        <p class="lede" id="start-with-the-seam">Most HTTP clients become complicated in the same innocent way: one useful option at a time. A header here, a timeout there, a special case for an empty response—and soon every request carries a small history of the application.</p>
+
+        <p>The way out is not a larger abstraction. It is a narrow seam. We want one place that knows how the network behaves and many places that only know what the product is trying to do. If that seam stays small, the code on either side can change without dragging the other along.</p>
+
+        <p>This article builds that seam in three layers. The first names the contract. The second contains <code>fetch</code> and turns its awkward edges into ordinary values. The third gives the rest of the application a vocabulary such as <code>publishDraft</code> instead of a sequence of headers, status checks, and JSON parsing.</p>
+
+        <h2 id="types-as-contract">Types as a contract</h2>
+
+        <p>Begin with the outcomes, not the implementation. Callers need to distinguish a response the server rejected from a request that never reached it. They should be able to handle both without catching an exception whose shape is unknown.</p>
+
+        <p>A discriminated union makes those paths explicit. The <code>ok</code> field is deliberately boring: TypeScript understands it, an <code>if</code> statement reads naturally, and no helper library is required.</p>
+
+        <section class="code-frame" data-language="typescript" aria-labelledby="filename-types">
+          <header class="code-head">
+            <span class="code-filename" id="filename-types">src/http/types.ts</span>
+            <button class="copy-button" type="button" data-copy-target="code-types" data-filename="src/http/types.ts" aria-label="Copy src/http/types.ts to clipboard"><span>Copy</span></button>
+          </header>
+          <pre tabindex="0" aria-label="TypeScript result and client option types"><code id="code-types"><span class="tok-keyword">export type</span> HttpFailure =
+  | {
+      kind: <span class="tok-string">"network"</span>;
+      message: <span class="tok-type">string</span>;
+      cause?: <span class="tok-type">unknown</span>;
+    }
+  | {
+      kind: <span class="tok-string">"http"</span>;
+      status: <span class="tok-type">number</span>;
+      message: <span class="tok-type">string</span>;
+      body: <span class="tok-type">unknown</span>;
+    };
+
+<span class="tok-keyword">export type</span> Result&lt;T&gt; =
+  | { ok: <span class="tok-keyword">true</span>; data: T; response: <span class="tok-type">Response</span> }
+  | { ok: <span class="tok-keyword">false</span>; error: HttpFailure; response?: <span class="tok-type">Response</span> };
+
+<span class="tok-keyword">export interface</span> ClientOptions {
+  baseUrl: <span class="tok-type">string</span>;
+  headers?: <span class="tok-type">HeadersInit</span>;
+  fetch?: <span class="tok-keyword">typeof</span> globalThis.fetch;
+}</code></pre>
+        </section>
+
+        <p>The injected <code>fetch</code> looks like a testing convenience, and it is. More importantly, it states where the side effect enters. The client owns the network. Everything above it can remain plain TypeScript.</p>
+
+        <h2 id="one-fetch-boundary">One boundary for fetch</h2>
+
+        <p>The transport layer has only a few jobs: assemble a URL, merge headers, perform the request, decode a body when one exists, and normalize failure. It should not know that the application has posts, users, invoices, or drafts.</p>
+
+        <p>Keeping those responsibilities together matters. If JSON parsing is scattered across call sites, a <code>204 No Content</code> response becomes a dozen separate bugs. If status handling is scattered, each feature invents a slightly different definition of success.</p>
+
+        <section class="code-frame" data-language="typescript" aria-labelledby="filename-client">
+          <header class="code-head">
+            <span class="code-filename" id="filename-client">src/http/client.ts</span>
+            <button class="copy-button" type="button" data-copy-target="code-client" data-filename="src/http/client.ts" aria-label="Copy src/http/client.ts to clipboard"><span>Copy</span></button>
+          </header>
+          <pre tabindex="0" aria-label="TypeScript HTTP client implementation"><code id="code-client"><span class="tok-keyword">import type</span> { ClientOptions, Result } <span class="tok-keyword">from</span> <span class="tok-string">"./types"</span>;
+
+<span class="tok-keyword">export function</span> <span class="tok-fn">createHttpClient</span>(options: ClientOptions) {
+  <span class="tok-keyword">const</span> runFetch = options.fetch ?? globalThis.fetch;
+
+  <span class="tok-keyword">async function</span> <span class="tok-fn">request</span>&lt;T&gt;(
+    path: <span class="tok-type">string</span>,
+    init: <span class="tok-type">RequestInit</span> = {},
+  ): <span class="tok-type">Promise</span>&lt;Result&lt;T&gt;&gt; {
+    <span class="tok-keyword">const</span> headers = <span class="tok-keyword">new</span> <span class="tok-type">Headers</span>(options.headers);
+    <span class="tok-keyword">new</span> <span class="tok-type">Headers</span>(init.headers).forEach((value, key) =&gt; {
+      headers.set(key, value);
+    });
+
+    <span class="tok-keyword">try</span> {
+      <span class="tok-keyword">const</span> response = <span class="tok-keyword">await</span> runFetch(
+        <span class="tok-keyword">new</span> <span class="tok-type">URL</span>(path, options.baseUrl),
+        { ...init, headers },
+      );
+      <span class="tok-keyword">const</span> body = response.status === <span class="tok-number">204</span>
+        ? <span class="tok-keyword">undefined</span>
+        : <span class="tok-keyword">await</span> response.json().catch(() =&gt; <span class="tok-keyword">undefined</span>);
+
+      <span class="tok-keyword">if</span> (!response.ok) {
+        <span class="tok-keyword">return</span> {
+          ok: <span class="tok-keyword">false</span>,
+          error: {
+            kind: <span class="tok-string">"http"</span>,
+            status: response.status,
+            message: response.statusText || <span class="tok-string">"Request failed"</span>,
+            body,
+          },
+          response,
+        };
+      }
+
+      <span class="tok-keyword">return</span> { ok: <span class="tok-keyword">true</span>, data: body <span class="tok-keyword">as</span> T, response };
+    } <span class="tok-keyword">catch</span> (cause) {
+      <span class="tok-keyword">return</span> {
+        ok: <span class="tok-keyword">false</span>,
+        error: { kind: <span class="tok-string">"network"</span>, message: <span class="tok-string">"Network unavailable"</span>, cause },
+      };
+    }
+  }
+
+  <span class="tok-keyword">return</span> {
+    get: &lt;T&gt;(path: <span class="tok-type">string</span>) =&gt; request&lt;T&gt;(path),
+    post: &lt;T&gt;(path: <span class="tok-type">string</span>, body: <span class="tok-type">unknown</span>) =&gt;
+      request&lt;T&gt;(path, {
+        method: <span class="tok-string">"POST"</span>,
+        headers: { <span class="tok-string">"content-type"</span>: <span class="tok-string">"application/json"</span> },
+        body: JSON.stringify(body),
+      }),
+  };
+}</code></pre>
+        </section>
+
+        <h3 id="errors-are-data">Errors are data</h3>
+
+        <p>Notice what the helper does not do: it does not throw for an expected HTTP failure. A <code>404</code> and a <code>422</code> are answers from the server, not failures of control flow. Returning them as data makes the unhappy path visible in the function signature and keeps recovery near the decision that owns it.</p>
+
+        <aside class="margin-quote">Exceptions are valuable for broken assumptions. A server saying “no” is usually not a broken assumption; it is part of the conversation.</aside>
+
+        <p>There are reasonable variations. You may prefer throwing errors because your framework has an error boundary, or you may need separate kinds for timeouts and cancellation. The important part is not this exact union. It is choosing one vocabulary at the boundary instead of forcing every caller to interpret raw platform behavior.</p>
+
+        <h2 id="keep-call-sites-quiet">Keep call sites quiet</h2>
+
+        <p>The final layer speaks in product terms. It knows which endpoint publishes a draft and what a post looks like, but it does not know how headers are merged or how an empty body is decoded. The resulting function is small enough that its name carries most of the meaning.</p>
+
+        <section class="code-frame" data-language="typescript" aria-labelledby="filename-posts">
+          <header class="code-head">
+            <span class="code-filename" id="filename-posts">src/posts/publish-draft.ts</span>
+            <button class="copy-button" type="button" data-copy-target="code-posts" data-filename="src/posts/publish-draft.ts" aria-label="Copy src/posts/publish-draft.ts to clipboard"><span>Copy</span></button>
+          </header>
+          <pre tabindex="0" aria-label="TypeScript usage example"><code id="code-posts"><span class="tok-keyword">import</span> { createHttpClient } <span class="tok-keyword">from</span> <span class="tok-string">"../http/client"</span>;
+
+<span class="tok-keyword">type</span> Post = {
+  id: <span class="tok-type">string</span>;
+  title: <span class="tok-type">string</span>;
+  publishedAt: <span class="tok-type">string</span>;
+};
+
+<span class="tok-keyword">const</span> http = <span class="tok-fn">createHttpClient</span>({
+  baseUrl: <span class="tok-string">"https://api.example.com"</span>,
+  headers: { accept: <span class="tok-string">"application/json"</span> },
+});
+
+<span class="tok-keyword">export async function</span> <span class="tok-fn">publishDraft</span>(draftId: <span class="tok-type">string</span>) {
+  <span class="tok-keyword">const</span> result = <span class="tok-keyword">await</span> http.post&lt;Post&gt;(
+    <span class="tok-string">`/drafts/${draftId}/publish`</span>,
+    { notifySubscribers: <span class="tok-keyword">true</span> },
+  );
+
+  <span class="tok-keyword">if</span> (!result.ok) {
+    <span class="tok-keyword">return</span> { published: <span class="tok-keyword">false</span>, reason: result.error } <span class="tok-keyword">as const</span>;
+  }
+
+  <span class="tok-keyword">return</span> { published: <span class="tok-keyword">true</span>, post: result.data } <span class="tok-keyword">as const</span>;
+}</code></pre>
+        </section>
+
+        <p>The call site now decides what failure means for the feature. A form might keep the draft and show a message. A background job might retry a network error but stop on a validation response. The transport reports facts; the product layer supplies judgment.</p>
+
+        <h2 id="test-the-seam">Test the seam</h2>
+
+        <p>Because the side effect enters through one option, the test does not need to patch a global or start a server. A tiny fake can return a real <code>Response</code>, which lets the test exercise status handling and body decoding together.</p>
+
+        <section class="code-frame" data-language="typescript" aria-labelledby="filename-test">
+          <header class="code-head">
+            <span class="code-filename" id="filename-test">src/http/client.test.ts</span>
+            <button class="copy-button" type="button" data-copy-target="code-test" data-filename="src/http/client.test.ts" aria-label="Copy src/http/client.test.ts to clipboard"><span>Copy</span></button>
+          </header>
+          <pre tabindex="0" aria-label="Vitest test for the HTTP client"><code id="code-test"><span class="tok-keyword">import</span> { expect, it, vi } <span class="tok-keyword">from</span> <span class="tok-string">"vitest"</span>;
+<span class="tok-keyword">import</span> { createHttpClient } <span class="tok-keyword">from</span> <span class="tok-string">"./client"</span>;
+
+<span class="tok-fn">it</span>(<span class="tok-string">"returns a typed HTTP failure"</span>, <span class="tok-keyword">async</span> () =&gt; {
+  <span class="tok-keyword">const</span> fakeFetch = vi.fn().mockResolvedValue(
+    <span class="tok-keyword">new</span> <span class="tok-type">Response</span>(JSON.stringify({ message: <span class="tok-string">"Draft is empty"</span> }), {
+      status: <span class="tok-number">422</span>,
+      statusText: <span class="tok-string">"Unprocessable Content"</span>,
+      headers: { <span class="tok-string">"content-type"</span>: <span class="tok-string">"application/json"</span> },
+    }),
+  );
+  <span class="tok-keyword">const</span> http = <span class="tok-fn">createHttpClient</span>({
+    baseUrl: <span class="tok-string">"https://api.example.com"</span>,
+    fetch: fakeFetch,
+  });
+
+  <span class="tok-keyword">const</span> result = <span class="tok-keyword">await</span> http.post(<span class="tok-string">"/drafts/42/publish"</span>, {});
+
+  expect(result.ok).toBe(<span class="tok-keyword">false</span>);
+  <span class="tok-keyword">if</span> (!result.ok &amp;&amp; result.error.kind === <span class="tok-string">"http"</span>) {
+    expect(result.error.status).toBe(<span class="tok-number">422</span>);
+    expect(result.error.body).toEqual({ message: <span class="tok-string">"Draft is empty"</span> });
+  }
+});</code></pre>
+        </section>
+
+        <p>The test is intentionally close to the public behavior. It does not inspect a private parser or assert the exact options object passed to <code>fetch</code>. That freedom matters: the client can gain tracing, retries, or a different header strategy without rewriting tests that never cared about those details.</p>
+
+        <h2 id="the-next-layer">The next layer</h2>
+
+        <p>A production client will eventually need more: cancellation, authentication, observability, perhaps a careful retry strategy for idempotent requests. Add each capability at the lowest layer that can own it completely. Authentication headers belong at the boundary. “Try publishing again” belongs with the feature. A request identifier may cross both, but only because both have a legitimate reason to know it.</p>
+
+        <p>The small client above is not finished, and that is its strength. It has an obvious center and clear edges. You can point to the line where the outside world begins, the type that describes how it can fail, and the function where a product decision is made. When code has those landmarks, growth does not have to mean losing your way.</p>
+
+      </div>
+    </article>
+  </main>
+
+  <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+
+  <script>
+    (() => {
+      const contents = document.getElementById('contents');
+      const menu = document.getElementById('menu');
+      const scrim = document.getElementById('scrim');
+      const status = document.getElementById('copy-status');
+      const mobile = window.matchMedia('(max-width: 900px)');
+
+      const setMenu = (open, restoreFocus = false) => {
+        const isMobile = mobile.matches;
+        const nextOpen = isMobile && open;
+
+        contents.classList.toggle('open', nextOpen);
+        scrim.classList.toggle('visible', nextOpen);
+        menu.setAttribute('aria-expanded', String(nextOpen));
+        document.body.style.overflow = nextOpen ? 'hidden' : '';
+
+        if (isMobile) {
+          contents.inert = !nextOpen;
+          contents.setAttribute('aria-hidden', String(!nextOpen));
+        } else {
+          contents.inert = false;
+          contents.removeAttribute('aria-hidden');
+        }
+
+        if (nextOpen) {
+          contents.querySelector('a').focus();
+        } else if (restoreFocus) {
+          menu.focus();
+        }
+      };
+
+      menu.addEventListener('click', () => setMenu(!contents.classList.contains('open')));
+      scrim.addEventListener('click', () => setMenu(false, true));
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && contents.classList.contains('open')) {
+          setMenu(false, true);
+        }
+      });
+      contents.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (mobile.matches) setMenu(false);
+        });
+      });
+      if (typeof mobile.addEventListener === 'function') {
+        mobile.addEventListener('change', () => setMenu(false));
+      } else {
+        mobile.addListener(() => setMenu(false));
+      }
+      setMenu(false);
+
+      const writeClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+
+        const field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand('copy');
+        field.remove();
+        if (!copied) throw new Error('Copy command was unavailable');
+      };
+
+      document.querySelectorAll('.copy-button').forEach((button) => {
+        const label = button.querySelector('span');
+        const target = document.getElementById(button.dataset.copyTarget);
+        const filename = button.dataset.filename;
+        const defaultLabel = button.getAttribute('aria-label');
+
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          try {
+            await writeClipboard(target.textContent);
+            label.textContent = 'Copied';
+            button.dataset.state = 'copied';
+            button.setAttribute('aria-label', `${filename} copied to clipboard`);
+            status.textContent = `${filename} copied to clipboard.`;
+          } catch (_) {
+            label.textContent = 'Failed';
+            button.dataset.state = 'failed';
+            status.textContent = `Could not copy ${filename}. Select the code and copy it manually.`;
+          } finally {
+            button.disabled = false;
+            window.setTimeout(() => {
+              label.textContent = 'Copy';
+              delete button.dataset.state;
+              button.setAttribute('aria-label', defaultLabel);
+            }, 1800);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
