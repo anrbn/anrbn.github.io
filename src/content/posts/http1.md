@@ -198,6 +198,8 @@ it("returns a typed HTTP failure", async () => {
 
 The test is intentionally close to the public behavior. It does not inspect a private parser or assert the exact options object passed to `fetch`. That freedom matters: the client can gain tracing, retries, or a different header strategy without rewriting tests that never cared about those details.
 
+# abc
+
 ## The next layer
 
 A production client will eventually need more: cancellation, authentication, observability, perhaps a careful retry strategy for idempotent requests. Add each capability at the lowest layer that can own it completely. Authentication headers belong at the boundary. "Try publishing again" belongs with the feature. A request identifier may cross both, but only because both have a legitimate reason to know it.
