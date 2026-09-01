@@ -42,7 +42,7 @@ Pages CMS editor                          Direct Git/Markdown edit
 ```
 
 The deployed site contains generated HTML, CSS, a few small browser scripts,
-fonts loaded from Google Fonts, and a GitHub icon loaded from jsDelivr. Visitors
+fonts loaded from Google Fonts, and social icons loaded from jsDelivr. Visitors
 do not contact Pages CMS or an application backend.
 
 ## Production facts
@@ -88,7 +88,7 @@ is the current remote `main`, not whatever a local branch happens to contain.
 │   └── images/posts/               # CMS uploads appear here when present
 ├── src/
 │   ├── components/
-│   │   └── SiteIdentity.astro      # Site name and social link
+│   │   └── SiteIdentity.astro      # Site name and social links
 │   ├── content/
 │   │   └── posts/                  # Markdown/MDX posts
 │   ├── content.config.ts           # Astro content schema
@@ -382,7 +382,7 @@ the `site` value from `astro.config.mjs`.
 Current external assets:
 
 - Newsreader and Fragment Mono from Google Fonts.
-- GitHub SVG icon from jsDelivr, linked in `SiteIdentity.astro`.
+- GitHub, LinkedIn, and X SVG icons from jsDelivr, linked in `SiteIdentity.astro`.
 
 The visible `anirban.com` wordmark is currently branding and links to `/`; it
 does not configure or prove ownership of that domain.
@@ -547,7 +547,7 @@ gh run view <run-id> --repo anrbn/anrbn.github.io --log-failed
 
 ### Change branding or social links
 
-- Site name/social target: `src/components/SiteIdentity.astro`.
+- Site name/social targets: `src/components/SiteIdentity.astro`.
 - Default title/description and social metadata: `src/layouts/BaseLayout.astro`.
 - RSS title/description: `src/pages/rss.xml.js`.
 - Main visual tokens: `src/styles/global.css`.
