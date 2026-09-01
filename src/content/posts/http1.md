@@ -25,7 +25,7 @@ Begin with the outcomes, not the implementation. Callers need to distinguish a r
 
 A discriminated union makes those paths explicit. The `ok` field is deliberately boring: TypeScript understands it, an `if` statement reads naturally, and no helper library is required.
 
-### `src/http/types.ts`
+`src/http/types.ts`
 
 ```typescript
 export type HttpFailure =
@@ -50,7 +50,7 @@ export interface ClientOptions {
   headers?: HeadersInit;
   fetch?: typeof globalThis.fetch;
 }
-````
+```
 
 ### Where the Side Effect Enters
 
@@ -64,11 +64,11 @@ The client owns the network. Everything above it can remain plain TypeScript.
 
 The transport layer has only a few jobs:
 
-* assemble a URL
-* merge headers
-* perform the request
-* decode a body when one exists
-* normalize failure
+- assemble a URL
+- merge headers
+- perform the request
+- decode a body when one exists
+- normalize failure
 
 It should not know that the application has posts, users, invoices, or drafts.
 
@@ -280,12 +280,12 @@ That freedom matters: the client can gain tracing, retries, or a different heade
 
 A production client will eventually need more:
 
-* cancellation
-* authentication
-* observability
-* request identifiers
-* timeout handling
-* a careful retry strategy for idempotent requests
+- cancellation
+- authentication
+- observability
+- request identifiers
+- timeout handling
+- a careful retry strategy for idempotent requests
 
 Add each capability at the lowest layer that can own it completely.
 
@@ -303,8 +303,8 @@ The small client above is not finished, and that is its strength. It has an obvi
 
 You can point to:
 
-* the line where the outside world begins
-* the type that describes how it can fail
-* the function where a product decision is made
+- the line where the outside world begins
+- the type that describes how it can fail
+- the function where a product decision is made
 
 When code has those landmarks, growth does not have to mean losing your way.
