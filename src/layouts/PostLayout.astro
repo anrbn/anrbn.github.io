@@ -48,7 +48,6 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
     <SiteIdentity variant="rail" />
     <nav class="contents-group" aria-label="Table of contents">
       <ol>
-        <li class="active"><a href="#article-title" aria-current="location" data-toc-link>{title}</a></li>
         {tocTree.map((node) => <TocBranch node={node} />)}
       </ol>
     </nav>

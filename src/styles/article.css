@@ -7,10 +7,10 @@ body { font-size: 18px; line-height: 1.62; }
 body.drawer-open { overflow: hidden; }
 .skip { position: fixed; z-index: 100; top: .6rem; left: .6rem; padding: .55rem .75rem; background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: .7rem; text-decoration: none; transform: translateY(-180%); }
 .skip:focus { transform: none; }
-.contents { position: fixed; z-index: 20; inset: 0 auto 0 0; width: var(--rail); overflow-y: auto; overscroll-behavior: contain; padding: 3.1rem 2.45rem 7rem; background: var(--canvas); border-right: 1px solid var(--line); scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
-.rail-identity { position: fixed; z-index: 21; top: 3.1rem; left: 2.45rem; }
-.contents > nav { padding-top: 7rem; }
-.contents-group { margin: 0 0 2rem; }
+.contents { position: fixed; z-index: 20; inset: 0 auto 0 0; display: flex; width: var(--rail); overflow: hidden; background: var(--canvas); border-right: 1px solid var(--line); flex-direction: column; }
+.rail-identity { position: static; z-index: 21; flex: 0 0 auto; padding: 3.1rem 2.45rem 2.1rem; background: var(--canvas); }
+.contents > nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1rem 2.45rem 7rem; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+.contents-group { margin: 0; }
 .contents-group ol { margin: 0; padding: 0; list-style: none; }
 .contents-group > ol { padding-left: .65rem; }
 .contents-group ol ol { margin-top: .12rem; padding-left: .75rem; }
@@ -64,7 +64,8 @@ body.drawer-open { overflow: hidden; }
 @media (max-width: 1250px) {
   :root { --rail: 18rem; }
   .reader { padding-inline: 3rem; }
-  .contents { padding-inline: 2rem; }
+  .rail-identity,
+  .contents > nav { padding-inline: 2rem; }
   .article-body blockquote { margin-right: 0; }
   .code-frame { margin-inline: -2rem; }
 }
@@ -72,8 +73,8 @@ body.drawer-open { overflow: hidden; }
   :root { --rail: min(20rem, 88vw); }
   .contents { transform: translateX(-101%); transition: transform .22s ease; box-shadow: 10px 0 35px rgba(0, 0, 0, .12); }
   .contents.open { transform: translateX(0); }
-  .rail-identity { position: static; margin-bottom: 2.6rem; }
-  .contents > nav { padding-top: 0; }
+  .rail-identity { padding: 2.5rem 2rem 1.75rem; }
+  .contents > nav { padding: .5rem 2rem 4rem; }
   .reader { margin-left: 0; padding: 1.25rem 2rem 5rem; }
   .menu-button { position: fixed; z-index: 18; top: 1rem; left: 1rem; display: grid; background: var(--paper); border-color: var(--line); }
   .scrim { position: fixed; z-index: 19; inset: 0; background: rgba(0, 0, 0, .22); border: 0; }

@@ -387,7 +387,7 @@ Current external assets:
 - Newsreader and Fragment Mono from Google Fonts.
 - GitHub, LinkedIn, and X SVG icons from jsDelivr, linked in `SiteIdentity.astro`.
 
-The visible `anirban.com` wordmark is currently branding and links to `/`; it
+The visible `anirban.cloud` wordmark is currently branding and links to `/`; it
 does not configure or prove ownership of that domain.
 
 ## GitHub Actions and GitHub Pages
@@ -577,7 +577,7 @@ requires all of these:
 5. Add `public/CNAME` when appropriate so it is copied into the deployment.
 6. Rebuild and verify canonical, social, RSS, sitemap, HTTPS, and redirect URLs.
 
-Do not change only the visible `anirban.com` wordmark; that does not configure a
+Do not change only the visible `anirban.cloud` wordmark; that does not configure a
 domain.
 
 ### Rename a published post
