@@ -5,7 +5,7 @@ pubDate: 2026-09-01
 kind: blog
 tags:
   - example
-draft: true
+draft: false
 ---
 Start writing here. Delete these instructions when the post is ready.
 
