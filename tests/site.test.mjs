@@ -4,14 +4,13 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("builds the CMS-driven archive without React or demo posts", async () => {
+test("builds the CMS-driven archive without a client framework", async () => {
   const html = await readFile(new URL("dist/index.html", root), "utf8");
   assert.match(html, /<title>Margin \/ Notes<\/title>/);
   assert.match(html, />Blogs</);
   assert.match(html, />Thoughts</);
-  assert.match(html, /Nothing published here yet\./);
-  assert.doesNotMatch(html, /The shape of a good note\./);
-  assert.doesNotMatch(html, /A small HTTP client, built in layers\./);
+  assert.match(html, /data-list="blog"/);
+  assert.match(html, /data-list="thought"/);
   assert.doesNotMatch(html, /react-dom|__next|vinext/i);
 });
 

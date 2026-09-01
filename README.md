@@ -2,6 +2,9 @@
 
 A static personal blog built with Astro and published by GitHub Pages.
 
+See [doc.md](doc.md) for the complete architecture, Pages CMS integration,
+GitHub Actions deployment flow, agent workflow, and troubleshooting guide.
+
 ## Publishing
 
 The easiest editor is [Pages CMS](https://app.pagescms.org/). Sign in with
