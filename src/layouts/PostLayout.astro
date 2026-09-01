@@ -36,19 +36,12 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
       <section class="contents-group">
         <h2>On this page</h2>
         <ol>
-          <li class="active"><a href="#article-title" aria-current="page">{title}</a></li>
+          <li class="active"><a href="#article-title" aria-current="location" data-toc-link>{title}</a></li>
           {visibleHeadings.map((heading) => (
             <li class:list={{ nested: heading.depth === 3 }}>
-              <a href={`#${heading.slug}`}>{heading.text}</a>
+              <a href={`#${heading.slug}`} data-toc-link>{heading.text}</a>
             </li>
           ))}
-        </ol>
-      </section>
-      <section class="contents-group">
-        <h2>Archive</h2>
-        <ol>
-          <li><a href="/">All posts</a></li>
-          <li><a href="/rss.xml">RSS feed</a></li>
         </ol>
       </section>
     </nav>
@@ -122,6 +115,51 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
     });
     mobile.addEventListener("change", syncDrawer);
     syncDrawer();
+
+    const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-toc-link]"));
+    const trackedHeadings = tocLinks
+      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+      .filter((heading): heading is HTMLElement => heading instanceof HTMLElement);
+
+    const setActiveHeading = (id: string) => {
+      for (const link of tocLinks) {
+        const active = decodeURIComponent(link.hash.slice(1)) === id;
+        link.parentElement?.classList.toggle("active", active);
+        if (active) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      }
+    };
+
+    let scrollFrame = 0;
+    const syncActiveHeading = () => {
+      scrollFrame = 0;
+      if (trackedHeadings.length === 0) return;
+      const marker = Math.min(window.innerHeight * .25, 160);
+      let active = trackedHeadings[0];
+      for (const heading of trackedHeadings) {
+        if (heading.getBoundingClientRect().top <= marker) active = heading;
+        else break;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        active = trackedHeadings[trackedHeadings.length - 1];
+      }
+      setActiveHeading(active.id);
+    };
+
+    const scheduleActiveHeading = () => {
+      if (scrollFrame) return;
+      scrollFrame = window.requestAnimationFrame(syncActiveHeading);
+    };
+
+    for (const link of tocLinks) {
+      link.addEventListener("click", () => setActiveHeading(decodeURIComponent(link.hash.slice(1))));
+    }
+    window.addEventListener("scroll", scheduleActiveHeading, { passive: true });
+    window.addEventListener("resize", scheduleActiveHeading);
+    window.addEventListener("hashchange", scheduleActiveHeading);
+    const initialId = decodeURIComponent(window.location.hash.slice(1));
+    if (initialId && trackedHeadings.some((heading) => heading.id === initialId)) setActiveHeading(initialId);
+    window.requestAnimationFrame(syncActiveHeading);
 
     const status = document.querySelector("#copy-status");
     document.querySelectorAll(".article-body pre").forEach((pre, index) => {
