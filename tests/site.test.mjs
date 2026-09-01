@@ -7,6 +7,7 @@ const root = new URL("../", import.meta.url);
 test("builds the CMS-driven archive without a client framework", async () => {
   const html = await readFile(new URL("dist/index.html", root), "utf8");
   assert.match(html, /<title>Margin \/ Notes<\/title>/);
+  assert.match(html, /rel="canonical" href="https:\/\/anirban\.cloud\/"/);
   assert.match(html, />Blogs</);
   assert.match(html, />Thoughts</);
   assert.match(html, /data-list="blog"/);
@@ -25,7 +26,7 @@ test("emits publishing files and keeps the article rail focused", async () => {
     readFile(new URL("src/components/SiteIdentity.astro", root), "utf8"),
   ]);
   assert.match(rss, /<rss/);
-  assert.match(robots, /sitemap-index\.xml/);
+  assert.match(robots, /https:\/\/anirban\.cloud\/sitemap-index\.xml/);
   assert.match(cms, /path: src\/content\/posts/);
   assert.match(tocBranch, /data-toc-link/);
   assert.doesNotMatch(articleLayout, /<h2>Archive<\/h2>/);

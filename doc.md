@@ -1,7 +1,7 @@
 # Margin / Notes: maintainer and agent guide
 
 This document is the technical source of truth for the blog at
-[https://anrbn.github.io/](https://anrbn.github.io/). Read it before changing
+[https://anirban.cloud/](https://anirban.cloud/). Read it before changing
 the publishing setup, content schema, routes, or deployment workflow.
 
 Last verified: 2026-09-01.
@@ -38,7 +38,7 @@ Pages CMS editor                          Direct Git/Markdown edit
                                |
                 GitHub Pages deploys the artifact
                                |
-                    https://anrbn.github.io/
+                      https://anirban.cloud/
 ```
 
 The deployed site contains generated HTML, CSS, a few small browser scripts,
@@ -51,13 +51,13 @@ do not contact Pages CMS or an application backend.
 | --- | --- |
 | Repository | `anrbn/anrbn.github.io` |
 | Production branch | `main` |
-| Live URL | `https://anrbn.github.io/` |
+| Live URL | `https://anirban.cloud/` |
 | Host | GitHub Pages |
 | Build/deploy system | GitHub Actions |
 | Static-site generator | Astro 7 |
 | Required Node version | 24 or newer |
 | Package manager | npm (`package-lock.json` is committed) |
-| Custom domain | None configured |
+| Custom domain | `anirban.cloud` |
 | CMS | Pages CMS, editing GitHub files |
 | Content database | None |
 
@@ -182,7 +182,7 @@ The Markdown filename, not the title, determines the URL:
 
 ```text
 src/content/posts/2026-09-01-my-post.md
-→ https://anrbn.github.io/posts/2026-09-01-my-post/
+→ https://anirban.cloud/posts/2026-09-01-my-post/
 ```
 
 Changing a post title does not change its URL. Renaming the Markdown file does
@@ -323,7 +323,7 @@ The named `post_images` source maps:
 ```text
 Repository file: public/images/posts/example.webp
 Public URL:       /images/posts/example.webp
-Live URL:         https://anrbn.github.io/images/posts/example.webp
+Live URL:         https://anirban.cloud/images/posts/example.webp
 ```
 
 Allowed formats are PNG, JPG/JPEG, WebP, AVIF, GIF, and SVG. `rename: safe`
@@ -451,13 +451,14 @@ GitHub App authorization, and any DNS records are external state.
 `astro.config.mjs` currently contains:
 
 ```js
-site: "https://anrbn.github.io",
+site: "https://anirban.cloud",
 output: "static",
 ```
 
-Because `anrbn.github.io` is a GitHub user-site repository, it is hosted at the
-domain root and needs no Astro `base` setting. The `site` value feeds canonical
-links, social URLs, sitemap generation, and RSS.
+The site uses the custom domain at the domain root and needs no Astro `base`
+setting. The `site` value feeds canonical links, social URLs, sitemap
+generation, and RSS. GitHub still builds the site from the `anrbn.github.io`
+user-site repository.
 
 ## Local development and verification
 
@@ -565,20 +566,25 @@ Keep repeated names and descriptions synchronized.
 4. Add or update build-output tests.
 5. Test an old post and a newly created CMS-shaped post.
 
-### Add a custom domain
+### Maintain or change the custom domain
 
-No custom domain is currently configured. A complete migration normally
-requires all of these:
+The production custom domain is `anirban.cloud`. It is configured in GitHub
+Pages repository settings and at the DNS provider. The repository also keeps
+the public URL synchronized in `astro.config.mjs`, `public/robots.txt`, and the
+visible identity component.
 
-1. Configure the custom domain in GitHub Pages repository settings.
+When moving to another domain:
+
+1. Configure the domain in GitHub Pages repository settings.
 2. Configure the required DNS records with the domain registrar/DNS provider.
 3. Update `site` in `astro.config.mjs`.
 4. Update the sitemap URL in `public/robots.txt`.
-5. Add `public/CNAME` when appropriate so it is copied into the deployment.
+5. Update the visible identity when the brand should match the domain.
 6. Rebuild and verify canonical, social, RSS, sitemap, HTTPS, and redirect URLs.
 
-Do not change only the visible `anirban.cloud` wordmark; that does not configure a
-domain.
+This project deploys through a custom GitHub Actions workflow, so GitHub stores
+the custom domain in Pages settings and a repository `CNAME` file is not
+required.
 
 ### Rename a published post
 

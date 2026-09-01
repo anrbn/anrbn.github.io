@@ -5,7 +5,7 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 
 export default defineConfig({
-  site: "https://anrbn.github.io",
+  site: "https://anirban.cloud",
   output: "static",
   integrations: [sitemap()],
   markdown: {
