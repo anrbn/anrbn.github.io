@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Not found — Margin / Notes" description="The requested page could not be found.">
+  <main class="not-found">
+    <p>404</p>
+    <h1>This page has wandered off.</h1>
+    <a href="/">Return to the archive</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found { width: min(100% - 3rem, 42rem); margin: 0 auto; padding: 22vh 0 5rem; }
+  p { font: .68rem/1.5 var(--mono); letter-spacing: .06em; }
+  h1 { margin: 1rem 0 2rem; font-size: clamp(2.7rem, 7vw, 5.5rem); line-height: .95; font-weight: 400; letter-spacing: -.045em; }
+  a { font-family: var(--mono); font-size: .72rem; text-underline-offset: .3em; }
+</style>

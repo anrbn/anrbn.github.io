@@ -1,0 +1,163 @@
+---
+import SiteIdentity from "../components/SiteIdentity.astro";
+import "../styles/article.css";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  headings?: Heading[];
+  image?: string;
+}
+
+const { title, description, pubDate, updatedDate, headings = [], image } = Astro.props;
+const visibleHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
+---
+
+<BaseLayout title={`${title} — Margin / Notes`} description={description} image={image} type="article">
+  <a class="skip" href="#article-body">Skip to article</a>
+
+  <aside class="contents" id="contents" aria-label="Article contents">
+    <SiteIdentity variant="rail" />
+    <nav aria-label="On this page">
+      <section class="contents-group">
+        <h2>On this page</h2>
+        <ol>
+          <li class="active"><a href="#article-title" aria-current="page">{title}</a></li>
+          {visibleHeadings.map((heading) => (
+            <li class:list={{ nested: heading.depth === 3 }}>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section class="contents-group">
+        <h2>Archive</h2>
+        <ol>
+          <li><a href="/">All posts</a></li>
+          <li><a href="/rss.xml">RSS feed</a></li>
+        </ol>
+      </section>
+    </nav>
+  </aside>
+
+  <button class="scrim" id="scrim" type="button" aria-label="Close contents"></button>
+
+  <main class="reader" id="article" tabindex="-1">
+    <button class="toolbar-button menu-button" id="menu" type="button" aria-controls="contents" aria-expanded="false" aria-label="Open contents">&#9776;</button>
+
+    <article class="paper">
+      <header class="article-head">
+        <p class="meta">
+          <time datetime={pubDate.toISOString().slice(0, 10)}>{dateFormatter.format(pubDate)}</time>
+          {updatedDate && <span> · Updated {dateFormatter.format(updatedDate)}</span>}
+        </p>
+        <h1 id="article-title">{title}</h1>
+        <p class="subtitle">{description}</p>
+        <span class="ornament" aria-hidden="true">&#9476;&#9476;&#9476;&#9476;</span>
+      </header>
+
+      <div class="article-body" id="article-body">
+        <slot />
+      </div>
+    </article>
+  </main>
+
+  <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+
+  <script>
+    const contents = document.querySelector("#contents");
+    const menu = document.querySelector("#menu");
+    const scrim = document.querySelector("#scrim");
+    const mobile = window.matchMedia("(max-width: 900px)");
+    let lastFocused: Element | null = null;
+
+    const setDrawer = (open: boolean) => {
+      if (!(contents instanceof HTMLElement) || !(menu instanceof HTMLButtonElement) || !(scrim instanceof HTMLButtonElement)) return;
+      contents.classList.toggle("open", open);
+      scrim.classList.toggle("visible", open);
+      menu.setAttribute("aria-expanded", String(open));
+      contents.toggleAttribute("inert", mobile.matches && !open);
+      contents.setAttribute("aria-hidden", String(mobile.matches && !open));
+      document.body.classList.toggle("drawer-open", open);
+      if (open) {
+        lastFocused = document.activeElement;
+        contents.querySelector("a")?.focus();
+      } else if (lastFocused instanceof HTMLElement) {
+        lastFocused.focus();
+      }
+    };
+
+    const syncDrawer = () => {
+      if (!(contents instanceof HTMLElement)) return;
+      if (mobile.matches) setDrawer(false);
+      else {
+        contents.classList.remove("open");
+        contents.removeAttribute("inert");
+        contents.removeAttribute("aria-hidden");
+        document.body.classList.remove("drawer-open");
+      }
+    };
+
+    menu?.addEventListener("click", () => setDrawer(!contents?.classList.contains("open")));
+    scrim?.addEventListener("click", () => setDrawer(false));
+    contents?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+      if (mobile.matches) setDrawer(false);
+    }));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && contents?.classList.contains("open")) setDrawer(false);
+    });
+    mobile.addEventListener("change", syncDrawer);
+    syncDrawer();
+
+    const status = document.querySelector("#copy-status");
+    document.querySelectorAll(".article-body pre").forEach((pre, index) => {
+      if (!(pre instanceof HTMLElement) || pre.closest(".code-frame")) return;
+      const code = pre.querySelector("code");
+      const language = pre.dataset.language || code?.className.replace(/^language-/, "") || "code";
+      const frame = document.createElement("section");
+      frame.className = "code-frame";
+      frame.dataset.language = language;
+      const head = document.createElement("header");
+      head.className = "code-head";
+      const label = document.createElement("span");
+      label.className = "code-filename";
+      label.textContent = language;
+      const button = document.createElement("button");
+      button.className = "copy-button";
+      button.type = "button";
+      button.textContent = "Copy";
+      button.setAttribute("aria-label", `Copy code block ${index + 1}`);
+      head.append(label, button);
+      pre.before(frame);
+      frame.append(head, pre);
+      button.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code?.textContent || pre.textContent || "");
+          button.textContent = "Copied";
+          button.dataset.state = "copied";
+          if (status) status.textContent = "Code copied to clipboard.";
+          window.setTimeout(() => {
+            button.textContent = "Copy";
+            delete button.dataset.state;
+          }, 1800);
+        } catch {
+          if (status) status.textContent = "Copy failed. Select the code and copy it manually.";
+        }
+      });
+    });
+  </script>
+</BaseLayout>

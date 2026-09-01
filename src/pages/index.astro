@@ -1,0 +1,70 @@
+---
+import { getCollection } from "astro:content";
+import SiteIdentity from "../components/SiteIdentity.astro";
+import { legacyPosts, type ArchivePost } from "../data/archive";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
+const cmsPosts: ArchivePost[] = (await getCollection("posts", ({ data }) => !data.draft)).map((post) => ({
+  title: post.data.title,
+  date: dateFormatter.format(post.data.pubDate),
+  dateTime: post.data.pubDate.toISOString().slice(0, 10),
+  href: `/posts/${post.id.replace(/\.(md|mdx)$/i, "")}/`,
+  kind: post.data.kind,
+}));
+
+const allPosts = [...cmsPosts, ...legacyPosts].sort(
+  (a, b) => new Date(b.dateTime).valueOf() - new Date(a.dateTime).valueOf(),
+);
+const groups = {
+  blog: allPosts.filter((post) => post.kind === "blog"),
+  thought: allPosts.filter((post) => post.kind === "thought"),
+};
+---
+
+<BaseLayout>
+  <main class="archive-home">
+    <SiteIdentity />
+    <div class="archive-wrap">
+      <nav class="archive-tabs" aria-label="Post categories">
+        <button type="button" aria-pressed="true" data-category="blog">Blogs</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" aria-pressed="false" data-category="thought">Thoughts</button>
+      </nav>
+
+      {Object.entries(groups).map(([kind, posts], groupIndex) => (
+        <ol class="post-list" data-list={kind} hidden={groupIndex !== 0}>
+          {posts.length === 0 ? (
+            <li class="empty-list">Nothing published here yet.</li>
+          ) : posts.map((post, index) => (
+            <li>
+              <a href={post.href}>
+                <span class="post-number">{String(index + 1).padStart(2, "0")}</span>
+                <span class="post-title">{post.title}</span>
+                <time datetime={post.dateTime}>{post.date}</time>
+              </a>
+            </li>
+          ))}
+        </ol>
+      ))}
+    </div>
+  </main>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll("[data-category]"));
+    const lists = Array.from(document.querySelectorAll("[data-list]"));
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        const category = button.getAttribute("data-category");
+        for (const item of buttons) item.setAttribute("aria-pressed", String(item === button));
+        for (const list of lists) list.toggleAttribute("hidden", list.getAttribute("data-list") !== category);
+      });
+    }
+  </script>
+</BaseLayout>

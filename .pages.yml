@@ -1,0 +1,91 @@
+media:
+  - name: post_images
+    label: Post images
+    input: public/images/posts
+    output: /images/posts
+    rename: safe
+    extensions: [png, jpg, jpeg, webp, avif, gif, svg]
+
+content:
+  - name: posts
+    label: Posts
+    type: collection
+    path: src/content/posts
+    format: yaml-frontmatter
+    filename:
+      template: "{year}-{month}-{day}-{primary}.md"
+      field: create
+    view:
+      fields: [title, kind, pubDate, draft]
+      primary: title
+      sort: [pubDate, title]
+      search: [title, description, tags]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options:
+          maxlength: 120
+      - name: description
+        label: Description
+        type: text
+        required: true
+        options:
+          maxlength: 240
+      - name: pubDate
+        label: Publication date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: updatedDate
+        label: Updated date
+        type: date
+        default: ""
+        options:
+          format: yyyy-MM-dd
+      - name: kind
+        label: Section
+        type: select
+        required: true
+        default: blog
+        options:
+          values:
+            - name: blog
+              label: Blog
+            - name: thought
+              label: Thought
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+      - name: draft
+        label: Draft
+        type: boolean
+        default: true
+        description: Drafts are hidden from the website but visible in a public repository.
+      - name: image
+        label: Cover image
+        type: image
+        required: false
+        options:
+          media: post_images
+      - name: body
+        label: Body
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          switcher: true
+          media: post_images
+
+settings:
+  commit:
+    templates:
+      create: "Publish {filename} via Pages CMS"
+      update: "Update {filename} via Pages CMS"
+      delete: "Remove {filename} via Pages CMS"
