@@ -5,35 +5,25 @@ pubDate: 2026-09-01
 kind: blog
 tags:
   - example
-draft: false
+draft: true
 ---
 # Defense Evasion via Source Code Concealment in Cloud Functions (1st-Gen) - Attack & Detection
 
 - [Attack](#attack)
-
   - [Way I - Deploy a Cloud Function in Google Cloud Platform](#way-i---deploy-a-cloud-function-in-google-cloud-platform)
-
     - [Deploying and Setting IAM Policy to a Cloud Function via gCloud or Cloud Function API (gRPC & REST)](#deploying-and-setting-iam-policy-to-a-cloud-function-via-gcloud-or-cloud-function-api-grpc--rest)
-
     - [APIs and Permissions required for Concealing the Source Code](#apis-and-permissions-required-for-concealing-the-source-code)
-
       - [Concealing the Source Code](#concealing-the-source-code)
-
   - [Way II - Update a Cloud Function in Google Cloud Platform](#way-ii---update-a-cloud-function-in-google-cloud-platform)
-
     - [Updating and Setting IAM Policy to a Cloud Function via gCloud or Cloud Function API (gRPC & REST)](#updating-and-setting-iam-policy-to-a-cloud-function-via-gcloud-or-cloud-function-api-grpc--rest)
-
     - [APIs and Permissions required for Concealing the Source Code](#apis-and-permissions-required-for-concealing-the-source-code)
-
       - [Concealing the Source Code](#concealing-the-source-code-1)
-
 - [Detect](#detect)
-
-    - [GCF Service Agent](#gcf-service-agent)
+  - [GCF Service Agent](#gcf-service-agent)
 
 # Attack
 
->Note: This technique is only relevent to **Cloud Function 1st-Gen**. With **Cloud Function 2nd-Gen** this is not possible.
+> Note: This technique is only relevent to **Cloud Function 1st-Gen**. With **Cloud Function 2nd-Gen** this is not possible.
 
 Cloud Functions are a prime target for Privilege Escalation which is evidently clear by past research "[Privilege Escalation via Cloud Functions]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md))". One way to detect Cloud Function abuse was to download the source code from Cloud Storage, where it is saved following the Function Deployment or Update process and analyzing it. In this post, I will be introducing an interesting technique I came across while researching [Privilege Escalation via Cloud Functions]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md)) which can disrupt that detection technique and ultimately prevent any alert. I named this technique "Source Code Concealment".
 
@@ -41,28 +31,41 @@ Cloud Function Source Code Concealment is a technique which enables an attacker 
 
 Here's a high level overview of the Cloud Function Deployment and Updation process.
 
-<p><img src="[https://drive.google.com/uc?id=1TarBMsPnTokDl2ufd8PR3tf2jjsfCk_o"></p>](https://drive.google.com/uc?id=1TarBMsPnTokDl2ufd8PR3tf2jjsfCk_o"></p>) 
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1TarBMsPnTokDl2ufd8PR3tf2jjsfCk_o">
+
+
+
+)
 
 Source Code Concealment targets the Storage Object "[function-source.zip](http://function-source.zip)" within the Cloud Storage Bucket where the source code is saved following the Function Deployment or Update process. In this attack we remove the malicious zip file from the Cloud Storage Bucket and replace it with a non-malicious zip file. This updates the Cloud Function with Non-malicious code but if we invoke the function endpoint it'll execute the malicious code. (depending on the presence of specific [conditions](#we-will-modify-the-malicious-code-now-to-introduce-the-conditions)). The malicious code once deleted from the Cloud Storage will be completely deleted leaving no artifacts or trace behind.
 
->Note: Even if you upload the source code Locally or via Cloud Repository, it will still be saved in the Cloud Storage Bucket.
+> Note: Even if you upload the source code Locally or via Cloud Repository, it will still be saved in the Cloud Storage Bucket.
 
 Here's a high level overview of the Source Code Concealment process.
 
-<p><img src="[https://drive.google.com/uc?id=1aAQCgvDsXLDkJW_TY12xLwLXCtbWd14j"></p>](https://drive.google.com/uc?id=1aAQCgvDsXLDkJW_TY12xLwLXCtbWd14j"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1aAQCgvDsXLDkJW_TY12xLwLXCtbWd14j">
+
+
+
+)
 
 If an attacker wants to abuse Cloud Function for malicious purpose be it Privilege Escalation, Persistence, Impact etc. they typically have three primary options to choose from:
 
 - Deploy a Cloud Function.
-
 - Update the Cloud Function.
-
 - Delete a Cloud Function.
 
 The primary objective of Deleting a Cloud Function is to create an [Impact]([https://attack.mitre.org/tactics/TA0040/](https://attack.mitre.org/tactics/TA0040/)) rather than facilitate something important like Privilege Escalation or Persistence etc, moreover there is no point in concealing source code for the function we are going to delete. Thus, we will concentrate on concealing the source code for remaining two strategies:
 
 - Deploy a Cloud Function.
-
 - Update the Cloud Function.
 
 ## Way I - Deploy a Cloud Function in Google Cloud Platform
@@ -70,11 +73,8 @@ The primary objective of Deleting a Cloud Function is to create an [Impact]([htt
 Before you Deploy a Cloud Function make sure you have: 
 
 1. The necessary APIs and Permissions required for Deploying a Cloud Function (gCloud or Cloud Function API (gRPC & REST)).
-
-    - [APIs and Permissions required for Deploying Cloud Function via gCloud]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-deploying-a-cloud-function-via-gcloud](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-deploying-a-cloud-function-via-gcloud))
-
+  - [APIs and Permissions required for Deploying Cloud Function via gCloud]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-deploying-a-cloud-function-via-gcloud](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-deploying-a-cloud-function-via-gcloud))
     - [APIs and Permissions required for Deploying Cloud Function via Cloud Function API (gRPC & REST)]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-deploying-a-cloud-function-via-cloud-function-api-grpc--rest](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-deploying-a-cloud-function-via-cloud-function-api-grpc--rest))
-
 2. The Malicious source code and Non-malicious source code in place.
 
 #### In our case the Malicious and Non-malicious source code are given below:
@@ -238,9 +238,7 @@ APIs need to enabled:
 Permissions required:
 
 - storage.objects.list
-
 - storage.objects.delete
-
 - storage.objects.create
 
 **storage.objects.list** - This permission is required to list the objects in the Cloud Storage Bucket. It is required because the Cloud Storage Object name is in the format of `<function_name>-<unique_identifier>`. We can't figure out the Unique Identifier.
@@ -251,13 +249,13 @@ Permissions required:
 
 ### Concealing the Source Code
 
->Before moving forward pack the Non-Malicious Source Code ([main.py](http://main.py)) and requirements.txt into a zip file and rename it "[function-source.zip](http://function-source.zip)".
+> Before moving forward pack the Non-Malicious Source Code ([main.py](http://main.py)) and requirements.txt into a zip file and rename it "[function-source.zip](http://function-source.zip)".
 
->gCloud requires fairly less permissions to conceal the source code. Thus, there is no need to narrow down any permission using Cloud Function API.
+> gCloud requires fairly less permissions to conceal the source code. Thus, there is no need to narrow down any permission using Cloud Function API.
 
 There are three steps to conceal the source code via gCloud:
 
-1. List the objects in the bucket "gcf-sources-<project_number>-&lt;region>".
+1. List the objects in the bucket "gcf-sources--&lt;region>".
 
 Command:
 
@@ -277,7 +275,7 @@ gcloud storage ls gs://gcf-sources-<project_number>-<region>
 
 ```
 
-2. List the objects inside the "<function_name>-<unique_identifier>/version-1" folder in the "gcf-sources-<project_number>-<region>" bucket.
+2. List the objects inside the "-/version-1" folder in the "gcf-sources--" bucket.
 
 Command:
 
@@ -287,7 +285,7 @@ gcloud storage ls gs://gcf-sources-<project_number>-<region>/<function_name>-<un
 
 ```
 
-3. Copy the Non-Malicious Source Code from Local Machine to the "<function_name>-<unique_identifier>/version-1/" folder in the "gcf-sources-<project_number>-<region>" bucket on Google Cloud Storage. This will replace the Malicious Source Code with the Non-Malicious Source Code.
+3. Copy the Non-Malicious Source Code from Local Machine to the "-/version-1/" folder in the "gcf-sources--" bucket on Google Cloud Storage. This will replace the Malicious Source Code with the Non-Malicious Source Code.
 
 Command:
 
@@ -301,15 +299,39 @@ gsutils cp <local-path-of-non-malicious-sourcecode> gs://gcf-sources-<project_nu
 
 ```
 
-<p><img src="[https://drive.google.com/uc?id=1xzQoEFDkcrDgV1DII81hcQH52Oy0hk6X"></p>](https://drive.google.com/uc?id=1xzQoEFDkcrDgV1DII81hcQH52Oy0hk6X"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1xzQoEFDkcrDgV1DII81hcQH52Oy0hk6X">
+
+
+
+)
 
 Now when the Function is examined the Source Code would look Non-malicious.
 
-<p><img src="[https://drive.google.com/uc?id=1FKRS1M8YqT3YdV4VR5AEhAFpyxeE_48n"></p>](https://drive.google.com/uc?id=1FKRS1M8YqT3YdV4VR5AEhAFpyxeE_48n"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1FKRS1M8YqT3YdV4VR5AEhAFpyxeE_48n">
+
+
+
+)
 
 Let's invoke the Cloud Function and see which code is being executed.
 
-<p><img src="[https://drive.google.com/uc?id=1OAkVb8x-Zq-mD6oe9kZYxRxeN40iQg1j"></p>](https://drive.google.com/uc?id=1OAkVb8x-Zq-mD6oe9kZYxRxeN40iQg1j"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1OAkVb8x-Zq-mD6oe9kZYxRxeN40iQg1j">
+
+
+
+)
 
 Upon looking at the Source Code we can see that the Source Code looks Non-Malicious. But when we invoke the Cloud Function, the Malicious Source Code is being executed. 
 
@@ -443,7 +465,15 @@ curl -H "my-header: anirban-gcp" https://<your-region>-<your-project-id>.cloudfu
 
 ```
 
-<p><img src="[https://drive.google.com/uc?id=13RnUXX6jVEjIPju3uZvv5XdK0h3mS7yt"></p>](https://drive.google.com/uc?id=13RnUXX6jVEjIPju3uZvv5XdK0h3mS7yt"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=13RnUXX6jVEjIPju3uZvv5XdK0h3mS7yt">
+
+
+
+)
 
 Notice how the malicious output is being returned only when we use the header "my-header" and header value "anirban-gcp". This is a better approach to conceal the Source Code.
 
@@ -458,11 +488,8 @@ There is no artifact left of the Malicious Source Code used in the Cloud Functio
 Before you Update a Cloud Function make sure you have: 
 
 1. The necessary APIs and Permissions required for Updating a Cloud Function (gCloud or Cloud Function API (gRPC & REST)).
-
-    - [APIs and Permissions required for Updating a Cloud Function via gCloud]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-updating-a-cloud-function-via-gcloud](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-updating-a-cloud-function-via-gcloud))
-
+  - [APIs and Permissions required for Updating a Cloud Function via gCloud]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-updating-a-cloud-function-via-gcloud](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-updating-a-cloud-function-via-gcloud))
     - [APIs and Permissions required for Updating a Cloud Function via Cloud Function API (gRPC & REST)]([https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-updating-a-cloud-function-via-cloud-function-api-grpc--rest](https://github.com/anrbn/GCP-Attack-Defense/blob/main/research/Google%20Cloud/Cloud%20Function/PrivEsc-via-CloudFunction.md#apis-and-permissions-required-for-updating-a-cloud-function-via-cloud-function-api-grpc--rest))
-
 2. The Malicious source code and Non-malicious source code in place.
 
 In case of Updating a Function, the Malicious code and Non-Malicious code would be different from the code used in Deployment.
@@ -478,7 +505,6 @@ Function source code can be downloaded from the Cloud Storage Bucket of the resp
 Permissions Required to list Cloud Storage Objects and download the [function-source.zip](http://function-source.zip) file.
 
 - storage.objects.list (To list the Objects in the Cloud Storage Bucket)
-
 - storage.objects.get (To download the [function-source.zip](http://function-source.zip) file in the Cloud Storage Bucket)
 
 Command:
@@ -521,7 +547,15 @@ gsutils cp gs://gcf-sources-<project_number>-<region>/<function_name>-<unique_id
 
 > **Note: Do not Delete the Original Source Code, it'll be required later. Please ensure you store a copy of the original code in a separate folder, without modifying it.**
 
-<p><img src="[https://drive.google.com/uc?id=11Aa-VBRUFrD2DtjU19bDV5s40EVpTzLL"></p>](https://drive.google.com/uc?id=11Aa-VBRUFrD2DtjU19bDV5s40EVpTzLL"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=11Aa-VBRUFrD2DtjU19bDV5s40EVpTzLL">
+
+
+
+)
 
 #### II. Identify the Entry Point of the target function
 
@@ -547,7 +581,15 @@ curl -s -H "Authorization: Bearer <token>" -H "Content-Type: application/json" "
 
 ```
 
-<p><img src="[https://drive.google.com/uc?id=1XsPgvvrkRoxgbctSbz0YYBJOt07fUfCW"></p>](https://drive.google.com/uc?id=1XsPgvvrkRoxgbctSbz0YYBJOt07fUfCW"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1XsPgvvrkRoxgbctSbz0YYBJOt07fUfCW">
+
+
+
+)
 
 #### III. Insert the Malicious code using conditions (if-else)
 
@@ -567,7 +609,15 @@ Insert the malicious code using conditional statements (if-else) in the next lin
 
 ```
 
-<p><img src="[https://drive.google.com/uc?id=1IS2RActgusEsQ-Ftwi8hvFQ2cw5TxSA_"></p>](https://drive.google.com/uc?id=1IS2RActgusEsQ-Ftwi8hvFQ2cw5TxSA_"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1IS2RActgusEsQ-Ftwi8hvFQ2cw5TxSA_">
+
+
+
+)
 
 With the Malicious source code ready, we can now update the Cloud Function. Before you update the Malicious source code, make sure you have a copy of the original Cloud Function code that you're targeting, it'll be required in the next step.
 
@@ -609,7 +659,15 @@ curl -H "my-header: header-value" https://<your-region>-<your-project-id>.cloudf
 
 ```
 
-<p><img src="[https://drive.google.com/uc?id=1Y5QkmxVr2w4eS1Wh4r6n5d54ULcq1xED"></p>](https://drive.google.com/uc?id=1Y5QkmxVr2w4eS1Wh4r6n5d54ULcq1xED"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1Y5QkmxVr2w4eS1Wh4r6n5d54ULcq1xED">
+
+
+
+)
 
 Now we are good to go ahead and Conceal the Source Code of the Cloud Function.
 
@@ -619,7 +677,7 @@ Now we are good to go ahead and Conceal the Source Code of the Cloud Function.
 
 There are three steps to conceal the source code via gCloud:
 
-1. List the objects in the bucket "gcf-sources-<project_number>-&lt;region>".
+1. List the objects in the bucket "gcf-sources--&lt;region>".
 
 Command:
 
@@ -639,7 +697,7 @@ gcloud storage ls gs://gcf-sources-<project_number>-<region>
 
 ```
 
-2. List the objects inside the "<function_name>-<unique_identifier>/<updated-version>" folder in the "gcf-sources-<project_number>-<region>" bucket.
+2. List the objects inside the "-/" folder in the "gcf-sources--" bucket.
 
 Command:
 
@@ -649,7 +707,7 @@ gcloud storage ls gs://gcf-sources-<project_number>-<region>/<function_name>-<un
 
 ```
 
-3. Copy the Non-Malicious Source Code from Local Machine to the "<function_name>-<unique_identifier>/<updated-version>/" folder in the "gcf-sources-<project_number>-<region>" bucket on Google Cloud Storage. This will replace the Malicious Source Code with the Non-Malicious Source Code.
+3. Copy the Non-Malicious Source Code from Local Machine to the "-//" folder in the "gcf-sources--" bucket on Google Cloud Storage. This will replace the Malicious Source Code with the Non-Malicious Source Code.
 
 Command:
 
@@ -663,19 +721,43 @@ gsutils cp <local-path-of-non-malicious-sourcecode> gs://gcf-sources-<project_nu
 
 ```
 
-<p><img src="[https://drive.google.com/uc?id=1p4KVCV3zhug1Z8FCOi0Pr5nCOmcRvbBo"></p>](https://drive.google.com/uc?id=1p4KVCV3zhug1Z8FCOi0Pr5nCOmcRvbBo"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1p4KVCV3zhug1Z8FCOi0Pr5nCOmcRvbBo">
+
+
+
+)
 
 Now when the Function is examined the Source Code would look Non-malicious
 
-<p><img src="[https://drive.google.com/uc?id=16c3Zih5wig_Rp6UmW_KmKwvolgVDqBoR"></p>](https://drive.google.com/uc?id=16c3Zih5wig_Rp6UmW_KmKwvolgVDqBoR"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=16c3Zih5wig_Rp6UmW_KmKwvolgVDqBoR">
+
+
+
+)
 
 Let's invoke the Cloud Function and see which code is being executed.
 
-<p><img src="[https://drive.google.com/uc?id=1Y5QkmxVr2w4eS1Wh4r6n5d54ULcq1xED"></p>](https://drive.google.com/uc?id=1Y5QkmxVr2w4eS1Wh4r6n5d54ULcq1xED"></p>)
+
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=1Y5QkmxVr2w4eS1Wh4r6n5d54ULcq1xED">
+
+
+
+)
 
 The Source Code has been successfully Concealed once again. Upon looking at the Source Code we can see that the Source Code looks Non-Malicious. And upon invocation the Non-Malicious Source Code is being executed, but if the correct header and header value is present in the request the Malicious code is executed. This is exactly what we wanted. 
 
->Tip: If you delete the [function-source.zip](http://function-source.zip) file from Cloud Storage you won't be able to view the Source Code in Cloud Console, but the Cloud Function would work fine.
+> Tip: If you delete the [function-source.zip](http://function-source.zip) file from Cloud Storage you won't be able to view the Source Code in Cloud Console, but the Cloud Function would work fine.
 
 # Detect
 
@@ -705,9 +787,17 @@ NOT protoPayload.authenticationInfo.principalEmail:[gcf-admin-robot.iam.gservice
 
 ```
 
- 
 
-<p><img src="[https://drive.google.com/uc?id=14ti24yCTCvAtIfcWIYyXZQRbaEJ6PPZp"></p>](https://drive.google.com/uc?id=14ti24yCTCvAtIfcWIYyXZQRbaEJ6PPZp"></p>)
+
+&nbsp;
+
+![]([https:/drive.google.com/uc)
+
+](https://drive.google.com/uc?id=14ti24yCTCvAtIfcWIYyXZQRbaEJ6PPZp">
+
+
+
+)
 
 There is a flag called `--impersonate-service-account` which is used to impersonate a service account when executing the command. This is useful in situations where you want to perform actions on behalf of a service account without directly using the service account's key file. 
 
