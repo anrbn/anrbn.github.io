@@ -1,5 +1,3 @@
-# Margin / Notes
-
 A static personal blog built with Astro and published by GitHub Pages.
 
 See [doc.md](doc.md) for the complete architecture, Pages CMS integration,
