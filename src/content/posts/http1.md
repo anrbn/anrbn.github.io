@@ -5,6 +5,7 @@ description: A modest TypeScript boundary for requests, errors, and the code
 pubDate: 2026-09-01
 kind: blog
 draft: false
+image: /images/posts/chatgpt-image-aug-31-2026-050311-am.png
 ---
 *A modest TypeScript boundary for requests, errors, and the code that should not have to think about either.*
 
@@ -22,7 +23,7 @@ A discriminated union makes those paths explicit. The `ok` field is deliberately
 
 `src/http/types.ts`
 
-``` typescript
+```typescript
 export type HttpFailure =
   | {
       kind: "network";
@@ -57,7 +58,7 @@ Keeping those responsibilities together matters. If JSON parsing is scattered ac
 
 `src/http/client.ts`
 
-``` typescript
+```typescript
 import type { ClientOptions, Result } from "./types";
 
 export function createHttpClient(options: ClientOptions) {
@@ -131,7 +132,7 @@ The final layer speaks in product terms. It knows which endpoint publishes a dra
 
 `src/posts/publish-draft.ts`
 
-``` typescript
+```typescript
 import { createHttpClient } from "../http/client";
 
 type Post = {
@@ -167,7 +168,7 @@ Because the side effect enters through one option, the test does not need to pat
 
 `src/http/client.test.ts`
 
-``` typescript
+```typescript
 import { expect, it, vi } from "vitest";
 import { createHttpClient } from "./client";
 
