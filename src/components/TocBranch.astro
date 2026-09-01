@@ -1,0 +1,23 @@
+---
+export interface TocNode {
+  depth: number;
+  slug: string;
+  text: string;
+  children: TocNode[];
+}
+
+interface Props {
+  node: TocNode;
+}
+
+const { node } = Astro.props;
+---
+
+<li data-heading-depth={node.depth}>
+  <a href={`#${node.slug}`} data-toc-link>{node.text}</a>
+  {node.children.length > 0 && (
+    <ol>
+      {node.children.map((child) => <Astro.self node={child} />)}
+    </ol>
+  )}
+</li>

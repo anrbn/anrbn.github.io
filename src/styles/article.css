@@ -11,14 +11,16 @@ body.drawer-open { overflow: hidden; }
 .rail-identity { position: fixed; z-index: 21; top: 3.1rem; left: 2.45rem; }
 .contents > nav { padding-top: 7rem; }
 .contents-group { margin: 0 0 2rem; }
-.contents-group h2 { margin: 0 0 .8rem; font-family: var(--mono); font-size: .75rem; font-weight: 400; letter-spacing: .035em; text-transform: uppercase; }
-.contents-group ol { margin: 0; padding-left: .65rem; list-style: none; }
+.contents-group ol { margin: 0; padding: 0; list-style: none; }
+.contents-group > ol { padding-left: .65rem; }
+.contents-group ol ol { margin-top: .12rem; padding-left: .75rem; }
 .contents-group li { padding: .17rem 0; font-size: .86rem; line-height: 1.55; }
-.contents-group li.nested { padding-left: .75rem; color: #565954; }
+.contents-group ol ol > li { color: #565954; font-size: .82rem; }
+.contents-group ol ol ol > li { color: #71736e; font-size: .78rem; }
 .contents-group a { display: inline-block; text-decoration: none; transform-origin: left center; transition: transform .12s ease; }
 .contents-group a:hover,
 .contents-group a:focus-visible { color: var(--accent); outline: none; transform: scale(1.04); }
-.contents-group li.active a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .35em; }
+.contents-group li.active > a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .35em; }
 .reader { min-height: 100vh; margin-left: var(--rail); padding: 2.75rem clamp(3rem, 5vw, 6.5rem) 8rem; }
 .toolbar-button { min-width: 2rem; height: 2rem; display: grid; place-items: center; padding: 0 .45rem; background: transparent; border: 1px solid transparent; cursor: pointer; font-family: var(--mono); font-size: .7rem; }
 .toolbar-button:hover,
@@ -30,14 +32,15 @@ body.drawer-open { overflow: hidden; }
 .code-filename,
 .copy-button { font-family: var(--mono); font-size: .63rem; line-height: 1.5; letter-spacing: .035em; text-transform: uppercase; }
 .meta { margin: 0 0 2rem; }
-.paper h1 { max-width: 48rem; margin: 0; font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 4.3rem); line-height: 1; font-weight: 400; letter-spacing: -.045em; }
+.article-head h1 { max-width: 48rem; margin: 0; font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 4.3rem); line-height: 1; font-weight: 400; letter-spacing: -.045em; }
 .subtitle { max-width: 43rem; margin: 1rem auto 0; color: #4b4944; font-size: 1.06rem; line-height: 1.45; }
 .ornament { margin-top: 2.3rem; font-family: var(--mono); font-size: .7rem; letter-spacing: -.12em; }
 .article-body { width: min(100% - 3rem, 42rem); margin: 0 auto; padding: 1.8rem 0 10rem; }
 .article-body > p { margin: 0 0 1.45rem; }
 .article-body > p:first-child { font-size: 1.18rem; line-height: 1.65; }
-.article-body h2 { margin: 4.4rem 0 1.2rem; font-size: 2.35rem; line-height: 1.1; font-weight: 400; letter-spacing: -.035em; }
-.article-body h3 { margin: 2.8rem 0 1rem; font-size: 1.5rem; line-height: 1.2; font-weight: 500; letter-spacing: -.02em; }
+.article-body h1 { margin: 4.4rem 0 1.2rem; font-size: 2.35rem; line-height: 1.1; font-weight: 400; letter-spacing: -.035em; }
+.article-body h2 { margin: 3.5rem 0 1.1rem; font-size: 1.85rem; line-height: 1.15; font-weight: 400; letter-spacing: -.028em; }
+.article-body h3 { margin: 2.7rem 0 .9rem; font-size: 1.35rem; line-height: 1.22; font-weight: 500; letter-spacing: -.018em; }
 .article-body ul,
 .article-body ol { margin: 0 0 1.5rem; padding-left: 1.25rem; }
 .article-body li { margin-bottom: .45rem; padding-left: .2rem; }
@@ -79,10 +82,12 @@ body.drawer-open { overflow: hidden; }
 @media (max-width: 650px) {
   .reader { padding-inline: .75rem; }
   .article-head { min-height: 24rem; padding: 4rem 1.25rem 3rem; }
-  .paper h1 { font-size: 2.8rem; }
+  .article-head h1 { font-size: 2.8rem; }
   .subtitle { font-size: .95rem; }
   .article-body { width: min(100% - 2rem, 42rem); }
-  .article-body h2 { font-size: 2rem; }
+  .article-body h1 { font-size: 2rem; }
+  .article-body h2 { font-size: 1.65rem; }
+  .article-body h3 { font-size: 1.25rem; }
   .code-frame { margin-inline: 0; }
   .code-frame pre { padding-inline: 1rem !important; font-size: .7rem; }
 }

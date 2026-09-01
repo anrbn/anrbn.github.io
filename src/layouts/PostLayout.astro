@@ -1,5 +1,6 @@
 ---
 import SiteIdentity from "../components/SiteIdentity.astro";
+import TocBranch, { type TocNode } from "../components/TocBranch.astro";
 import "../styles/article.css";
 import BaseLayout from "./BaseLayout.astro";
 
@@ -19,7 +20,20 @@ interface Props {
 }
 
 const { title, description, pubDate, updatedDate, headings = [], image } = Astro.props;
-const visibleHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const visibleHeadings = headings.filter((heading) => heading.depth >= 1 && heading.depth <= 3);
+const tocTree: TocNode[] = [];
+const headingStack: TocNode[] = [];
+
+for (const heading of visibleHeadings) {
+  const node: TocNode = { ...heading, children: [] };
+  while (headingStack.length > 0 && headingStack[headingStack.length - 1].depth >= node.depth) {
+    headingStack.pop();
+  }
+  const parent = headingStack[headingStack.length - 1];
+  if (parent) parent.children.push(node);
+  else tocTree.push(node);
+  headingStack.push(node);
+}
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
   month: "long",
@@ -32,18 +46,11 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
 
   <aside class="contents" id="contents" aria-label="Article contents">
     <SiteIdentity variant="rail" />
-    <nav aria-label="On this page">
-      <section class="contents-group">
-        <h2>On this page</h2>
-        <ol>
-          <li class="active"><a href="#article-title" aria-current="location" data-toc-link>{title}</a></li>
-          {visibleHeadings.map((heading) => (
-            <li class:list={{ nested: heading.depth === 3 }}>
-              <a href={`#${heading.slug}`} data-toc-link>{heading.text}</a>
-            </li>
-          ))}
-        </ol>
-      </section>
+    <nav class="contents-group" aria-label="Table of contents">
+      <ol>
+        <li class="active"><a href="#article-title" aria-current="location" data-toc-link>{title}</a></li>
+        {tocTree.map((node) => <TocBranch node={node} />)}
+      </ol>
     </nav>
   </aside>
 

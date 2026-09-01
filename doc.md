@@ -88,7 +88,8 @@ is the current remote `main`, not whatever a local branch happens to contain.
 │   └── images/posts/               # CMS uploads appear here when present
 ├── src/
 │   ├── components/
-│   │   └── SiteIdentity.astro      # Site name and social links
+│   │   ├── SiteIdentity.astro      # Site name and social links
+│   │   └── TocBranch.astro         # Recursive nested article TOC branch
 │   ├── content/
 │   │   └── posts/                  # Markdown/MDX posts
 │   ├── content.config.ts           # Astro content schema
@@ -233,9 +234,11 @@ export function greet(name: string) {
 
 Guidelines:
 
-- Do not add a Markdown `#` title; the frontmatter `title` becomes the page's
-  `<h1>`.
-- `##` and `###` headings are extracted into the article table of contents.
+- The frontmatter `title` remains the page title. In the article body, use `#`
+  for a major section, `##` for its subsection, and `###` for a smaller section.
+- Markdown `#`, `##`, and `###` headings are extracted into a nested article
+  table of contents. Each heading is placed beneath the nearest preceding
+  heading of a higher level.
 - Pages CMS's editor may not preview KaTeX exactly. Verify math locally or on
   the deployed page.
 - Fenced code is highlighted during the build. The article script adds the
@@ -356,7 +359,7 @@ renders its Markdown, extracts headings, and passes everything to
 
 - publication/updated dates, title, and description;
 - desktop contents rail and accessible mobile drawer;
-- `##`/`###` table of contents;
+- nested `#`/`##`/`###` table of contents;
 - active-section tracking while scrolling or following a hash link;
 - code-block frames and Copy buttons;
 - article metadata through `BaseLayout.astro`.
@@ -601,7 +604,7 @@ and verify a redirect before renaming it.
 | Cover image is not visible in article | Expected: `image` currently supplies social metadata only |
 | Image is broken | Confirm it exists under `public/images/posts/` and content uses `/images/posts/...` |
 | Old page appears after a green deploy | Hard-refresh, verify the newest run, or add a cache-busting query string |
-| TOC omits a heading | Only Markdown `##` and `###` headings are included |
+| TOC omits a heading | Only Markdown `#`, `##`, and `###` headings are included |
 | TOC highlights the wrong heading | Inspect `PostLayout.astro` active-heading script and generated unique heading IDs |
 | A docs-only change deployed the site | Expected: every push to `main` triggers the workflow |
 
