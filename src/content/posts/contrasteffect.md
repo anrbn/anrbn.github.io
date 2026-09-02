@@ -7,9 +7,7 @@ pubDate: 2026-07-15
 kind: thought
 draft: false
 ---
-Contrast Effect
-
-Whenever I'm reading or studying something and it starts feeling hard, I do the opposite, I go look at something different from my domain but still related which is *even harder*. While I'm reading that I feel grateful that I don't have to go that deep and I get back to work with more focus than before.
+Whenever I'm reading or studying something and it starts feeling hard, I do the opposite, I go look at something from a different domain which is different but still related to work I do but is *even harder*. While I'm reading that I feel grateful that I don't have to go that deep and I get back to work with more focus than before.
 
 Turns out this isn't just me being strange. It's a documented phenomenon.
 
