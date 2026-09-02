@@ -7,6 +7,8 @@ pubDate: 2026-07-15
 kind: thought
 draft: false
 ---
+Contrast Effect
+
 Whenever I'm reading or studying something and it starts feeling hard, I do the opposite, I go look at something different from my domain but still related which is *even harder*. While I'm reading that I feel grateful that I don't have to go that deep and I get back to work with more focus than before.
 
 Turns out this isn't just me being strange. It's a documented phenomenon.
@@ -23,7 +25,13 @@ There's a second layer too. That feeling of relief "at least I'm not dealing wit
 
 If I keep doing this, studying the easy thing, occasionally glancing at the hard thing to stay grounded, will the hard thing eventually start feeling easy too?
 
-Probably yes, through three routes. One, **genuine growth**: as I master the current level, I build the prerequisites the harder material assumes. Two, **familiarity**: a lot of "this is hard" is really just "this is unfamiliar," and repeated exposure makes the scary notation and vocabulary stop looking alien. Three, plain **adaptation**: my baseline for difficulty just drifts upward.
+Probably yes, through three routes. 
+
+One, **genuine growth**: as I master the current level, I build the prerequisites the harder material assumes. 
+
+Two, **familiarity**: a lot of "this is hard" is really just "this is unfamiliar," and repeated exposure makes the scary notation and vocabulary stop looking alien. 
+
+Three, plain **adaptation**: my baseline for difficulty just drifts upward.
 
 But one of those routes is a trap. It's called the **fluency illusion**, repeatedly skimming difficult material makes it *feel* familiar, and the brain misreads recognition as understanding. Recognizing terms is much cheaper than being able to use them. So "that hard chapter seems easy now" only counts if I can solve its problems or explain it without looking. Otherwise my anchor has just lost its shock value.
 
