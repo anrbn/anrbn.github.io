@@ -24,7 +24,7 @@ body {
 }
 a { color: inherit; }
 button { color: inherit; font: inherit; }
-::selection { background: #d7d8d4; color: var(--ink); }
+::selection { background: #FEFAFF; color: var(--ink); }
 
 .flower-decoration {
   --flower-size: clamp(18rem, 25vw, 30rem);

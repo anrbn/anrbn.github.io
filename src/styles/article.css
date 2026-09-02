@@ -1,6 +1,6 @@
 :root {
   --rail: 21.25rem;
-  --code: #FEFAFF;
+  --code: #FBFFFA;
 }
 body { font-size: 18px; line-height: 1.62; }
 body.drawer-open { overflow: hidden; }
