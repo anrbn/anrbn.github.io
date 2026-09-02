@@ -1,9 +1,6 @@
 :root {
   --rail: 21.25rem;
-  --code: #F7EFF6;
-  --code-head: #EFE3ED;
-  --inline-code: #F3EAF2;
-  --code-line: #DCCED9;
+  --code: #FEFAFF;
 }
 body { font-size: 18px; line-height: 1.62; }
 body.drawer-open { overflow: hidden; }
@@ -49,13 +46,13 @@ body.drawer-open { overflow: hidden; }
 .article-body li { margin-bottom: .45rem; padding-left: .2rem; }
 .article-body blockquote { margin: 3rem -6rem 3rem 0; padding: 1rem 0 1rem 1.2rem; border-left: 2px solid var(--accent); color: var(--muted); font-family: var(--mono); font-size: .73rem; line-height: 1.65; }
 .article-body blockquote p { margin: 0; }
-.article-body :not(pre) > code { padding: .08em .32em .12em; border: 1px solid var(--code-line); border-radius: 2px; background: var(--inline-code); font-family: var(--mono); font-size: .78em; white-space: nowrap; }
+.article-body :not(pre) > code { padding: .08em .32em .12em; border: 1px solid var(--line); border-radius: 2px; background: var(--code); font-family: var(--mono); font-size: .78em; white-space: nowrap; }
 .article-body img { display: block; max-width: 100%; height: auto; margin: 2.5rem auto; }
 .article-body a { text-decoration-thickness: 1px; text-underline-offset: .15em; }
-.code-frame { width: auto; margin: 2.4rem -4.3rem 2.7rem; overflow: hidden; border: 1px solid var(--code-line); background: var(--code); box-shadow: 0 1px 2px rgba(25, 26, 24, .025); }
-.code-head { min-height: 2.55rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .5rem .65rem .5rem 1rem; background: var(--code-head); border-bottom: 1px solid var(--code-line); }
+.code-frame { width: auto; margin: 2.4rem -4.3rem 2.7rem; overflow: hidden; border: 1px solid var(--line); background: var(--code); box-shadow: 0 1px 2px rgba(25, 26, 24, .025); }
+.code-head { min-height: 2.55rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .5rem .65rem .5rem 1rem; background: var(--code); border-bottom: 1px solid var(--line); }
 .code-filename { overflow: hidden; color: #555753; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
-.copy-button { flex: 0 0 auto; min-width: 4.25rem; min-height: 1.65rem; padding: .25rem .55rem; border: 1px solid var(--code-line); background: var(--paper); color: var(--ink); cursor: pointer; font-size: .58rem; }
+.copy-button { flex: 0 0 auto; min-width: 4.25rem; min-height: 1.65rem; padding: .25rem .55rem; border: 1px solid #cfd0cd; background: var(--paper); color: var(--ink); cursor: pointer; font-size: .58rem; }
 .copy-button:hover,
 .copy-button:focus-visible { border-color: var(--ink); outline: none; }
 .copy-button[data-state="copied"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
